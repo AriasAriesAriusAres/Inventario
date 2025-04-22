@@ -1,0 +1,143 @@
+===========================================
+    DESCRIPCIÓN DEL ARCHIVO pom.xml
+===========================================
+
+El archivo `pom.xml` (Project Object Model) es el corazón de cualquier proyecto Maven. Contiene la configuración principal del proyecto `Inventario_Fusionado` y define aspectos clave como dependencias, plugins, empaquetado y configuración general. A continuación, se describe qué hace cada sección del archivo `pom.xml` y los cambios actualizados respecto a la versión anterior:
+
+-------------------------------------------
+1. INFORMACIÓN GENERAL DEL PROYECTO
+-------------------------------------------
+
+<modelVersion>: Define la versión del esquema POM para Maven. Seguimos usando la versión estándar "4.0.0".
+
+<groupId>: Es el identificador único del proyecto, indicando la organización o grupo. En este ejemplo:
+   `org.Inventario_Plus`
+
+<artifactId>: Es el nombre del proyecto o módulo. En este caso, `Inventario_Fusionado`.
+
+<packaging>: Define el formato final del proyecto al compilar. Usamos "war" para aplicaciones web desplegables.
+
+<version>: Define la versión del proyecto. `1.0-SNAPSHOT` continúa indicando que el proyecto está en desarrollo.
+
+<name>: Es el nombre descriptivo del proyecto, útil para documentarlo.
+
+<url>: Un enlace donde se puede alojar la página del proyecto. Por ejemplo, una página web oficial.
+
+**ACTUALIZACIÓN:** Información del proyecto no requiere cambios adicionales.
+
+-------------------------------------------
+2. ACTUALIZACIONES EN LAS DEPENDENCIAS DEL PROYECTO
+-------------------------------------------
+
+La sección `<dependencies>` fue completamente modernizada. Ahora incluye soporte actualizado para Tomcat 10 (o superior) y dependencias más recientes:
+
+- **JUnit (5.10.0):**
+   - Migración a JUnit Jupiter (versión moderna de JUnit).
+   - Incluye `junit-jupiter-api` y `junit-jupiter-engine` para pruebas unitarias avanzadas.
+
+- **SQLite JDBC (3.42.0.1):**
+   - Actualización a la última versión estable para interactuar con bases de datos SQLite.
+
+- **Migración de dependencias javax.* a jakarta.*:**
+   La antigua API `javax` fue reemplazada por `jakarta`, necesaria para Tomcat 10+:
+   - **jakarta.servlet-api** (6.0.0) reemplaza a `javax.servlet-api`.
+   - **jakarta.servlet.jsp-api** (3.1.0) reemplaza a `javax.servlet.jsp-api`.
+   - **Jakarta JSTL:**
+     - **jakarta.servlet.jsp.jstl-api** (3.0.0): API para etiquetas estándar en JSP.
+     - **org.glassfish.web:jakarta.servlet.jsp.jstl** (3.0.1): Implementación compatible.
+
+**VENTAJAS DE LAS ACTUALIZACIONES:**
+- Compatibilidad inmediata con Tomcat 10 y versiones superiores.
+- Mejora en funcionalidad y soporte en pruebas unitarias con JUnit.
+- Uso de bibliotecas actualizadas y estándar del ecosistema Java moderno.
+
+-------------------------------------------
+3. CONFIGURACIÓN DE LA COMPILACIÓN
+-------------------------------------------
+
+La sección `<build>` fue ajustada para asegurar la compatibilidad con Java 24 (tu versión actual). Los cambios realizados son:
+
+- **Propiedades del compilador:**
+   Configuramos las versiones de Java para la compilación:
+   ```xml
+   <maven.compiler.source>24</maven.compiler.source>
+   <maven.compiler.target>24</maven.compiler.target>
+   ```
+
+- **Plugins:**
+   - **Maven Compiler Plugin (3.11.0):**
+     Asegura que el proyecto use el JDK configurado.
+   - **Maven WAR Plugin (3.3.2):**
+     Actualizado para empaquetar como WAR y omitir errores si no hay `web.xml`.
+     ```xml
+     <failOnMissingWebXml>false</failOnMissingWebXml>
+     ```
+
+**RESUMEN DE CAMBIOS:**
+- Compatibilidad garantizada con Java 24.
+- Generación de archivos WAR sin necesidad de un `web.xml`.
+- Mejoras en el soporte para servidores modernos como Tomcat 10.
+
+-------------------------------------------
+4. ¿QUÉ SE ACTUALIZÓ FRENTE A LA VERSIÓN ANTERIOR?
+-------------------------------------------
+
+1. **Migración al ecosistema jakarta.:**
+   - Se eliminaron todos los paquetes `javax.*` en favor de las implementaciones modernas como `jakarta.servlet.*` y `jakarta.*`.
+
+2. **Actualización a JUnit 5:**
+   - El proyecto ahora utiliza JUnit Jupiter para pruebas más funcionales y modernas.
+
+3. **Compatibilidad con Java 24:**
+   - La compilación cambió de Java 11 a Java 24, ajustando las propiedades `<maven.compiler.source>` y `<maven.compiler.target>`.
+
+4. **Dependencias actualizadas:**
+   - Se agregó la versión más reciente de SQLite JDBC (3.42.0.1) y todas las dependencias esenciales para JSP y Servlets.
+
+5. **Usabilidad en Tomcat 10+:**
+   - Configuración actualizada para ser amigable con los servidores web basados en el estándar Jakarta EE.
+
+-------------------------------------------
+5. BENEFICIOS DE LAS ACTUALIZACIONES EN ESTE POM.XML
+-------------------------------------------
+
+- **Modernización:**
+   - Migración completa a estándares recientes (Jakarta EE y JUnit 5).
+   - Uso de versiones modernas de bibliotecas para garantizar compatibilidad futura.
+
+- **Compatibilidad mejorada:**
+   - Soporte completo para Java 24.
+   - Optimización para servidores Tomcat 10 o superior, alineados con Jakarta EE.
+
+- **Portabilidad y despliegue:**
+   - El archivo WAR generado se puede desplegar en cualquier servidor compatible con Jakarta EE.
+   - Flujo de trabajo amigable para desarrolladores que utilicen Maven.
+
+- **Automatización avanzada:**
+   - Dependencias actualizadas se descargan automáticamente.
+   - Pruebas automatizadas mejoradas gracias al soporte de JUnit 5.
+
+-------------------------------------------
+6. ¿CÓMO FUNCIONA EL PROYECTO CON ESTE POM?
+-------------------------------------------
+
+1. **Sincronización de dependencias:**
+   Al ejecutar `mvn install` o `mvn package`, Maven descargará automáticamente todas las bibliotecas requeridas.
+
+2. **Compilación del proyecto:**
+   Utilizando **Java 24**, el proyecto se compilará asegurando compatibilidad con las dependencias modernas.
+
+3. **Generación del WAR:**
+   Ejecutando `mvn clean package`, el proyecto se empaquetará en un archivo `WAR` listo para desplegar.
+
+4. **Despliegue en servidor:**
+   Puedes subir el archivo `Inventario_Fusionado.war` a un servidor Tomcat 10+ para probar la aplicación web.
+
+5. **Pruebas unitarias mejoradas:**
+   Ejecuta `mvn test` para validar automáticamente la funcionalidad del proyecto con JUnit 5.
+
+-------------------------------------------
+7. RECOMENDACIÓN
+-------------------------------------------
+Consulta siempre la documentación de Jakarta EE y Tomcat para mantener una configuración al día.
+Esto asegura que tu proyecto permanezca operativo en futuros cambios de ecosistemas o actualizaciones de servidores.

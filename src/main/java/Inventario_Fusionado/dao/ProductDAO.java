@@ -1,0 +1,166 @@
+package Inventario_Fusionado.dao; // Ajusta el paquete
+
+import Inventario_Fusionado.database.DBManager;
+import Inventario_Fusionado.model.Product; // Asegúrate que Product.java esté en model
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ProductDAO {
+
+    // Obtener todos los productos
+    public List<Product> getAllProducts() {
+        List<Product> products = new ArrayList<>();
+        // Verifica nombres de columna en Inventario.sql (tabla productos)
+        String sql = "SELECT id_producto, nombre, descripcion, precio, stock, id_inventario FROM productos";
+
+        try (Connection conn = DBManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                Product product = new Product(
+                        rs.getInt("id_producto"),
+                        rs.getString("nombre"),
+                        rs.getString("descripcion"),
+                        rs.getBigDecimal("precio"), // Asumiendo que Product usa BigDecimal
+                        rs.getInt("stock"),
+                        rs.getInt("id_inventario")
+                );
+                products.add(product);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener productos desde SQLite: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return products;
+    }
+
+    // Obtener productos por ID de Inventario
+    public List<Product> getProductsByInventoryId(int inventoryId) {
+        List<Product> products = new ArrayList<>();
+        // Verifica columnas
+        String sql = "SELECT id_producto, nombre, descripcion, precio, stock, id_inventario FROM productos WHERE id_inventario = ?";
+
+        try (Connection conn = DBManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, inventoryId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Product product = new Product(
+                            rs.getInt("id_producto"),
+                            rs.getString("nombre"),
+                            rs.getString("descripcion"),
+                            rs.getBigDecimal("precio"),
+                            rs.getInt("stock"),
+                            rs.getInt("id_inventario")
+                    );
+                    products.add(product);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener productos por inventario desde SQLite: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return products;
+    }
+
+    // Agregar Producto
+    public boolean addProduct(Product product) {
+        // Verifica columnas: nombre, descripcion, precio, stock, id_inventario
+        String sql = "INSERT INTO productos(nombre, descripcion, precio, stock, id_inventario) VALUES(?, ?, ?, ?, ?)";
+        try (Connection conn = DBManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            pstmt.setString(1, product.getNombre());
+            pstmt.setString(2, product.getDescripcion());
+            pstmt.setBigDecimal(3, product.getPrecio());
+            pstmt.setInt(4, product.getStock());
+            pstmt.setInt(5, product.getIdInventario());
+
+            int affectedRows = pstmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        product.setIdProducto(generatedKeys.getInt(1)); // Asume setIdProducto(int)
+                    }
+                }
+            }
+            return affectedRows > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al agregar producto a SQLite: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Borrar Producto
+    public boolean deleteProduct(int id) {
+        // Verifica columna: id_producto
+        String sql = "DELETE FROM productos WHERE id_producto = ?";
+        try (Connection conn = DBManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al borrar producto de SQLite: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Actualizar Producto
+    public boolean updateProduct(Product product) {
+        // Verifica columnas: nombre, descripcion, precio, stock, id_inventario, id_producto
+        String sql = "UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, stock = ?, id_inventario = ? WHERE id_producto = ?";
+        try (Connection conn = DBManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, product.getNombre());
+            pstmt.setString(2, product.getDescripcion());
+            pstmt.setBigDecimal(3, product.getPrecio());
+            pstmt.setInt(4, product.getStock());
+            pstmt.setInt(5, product.getIdInventario());
+            pstmt.setInt(6, product.getIdProducto()); // Asume getIdProducto()
+
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar producto en SQLite: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Obtener un producto por ID
+    public Product getProductById(int id) {
+        // Verifica columnas
+        String sql = "SELECT id_producto, nombre, descripcion, precio, stock, id_inventario FROM productos WHERE id_producto = ?";
+        Product product = null;
+        try (Connection conn = DBManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    product = new Product(
+                            rs.getInt("id_producto"),
+                            rs.getString("nombre"),
+                            rs.getString("descripcion"),
+                            rs.getBigDecimal("precio"),
+                            rs.getInt("stock"),
+                            rs.getInt("id_inventario")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener producto por ID desde SQLite: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return product;
+    }
+}
