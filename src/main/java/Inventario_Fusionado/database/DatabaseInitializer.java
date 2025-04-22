@@ -1,9 +1,8 @@
-package Inventario_Fusionado.database; // Asegúrate que el paquete coincida
+// Asegúrate que el nombre del paquete sea correcto
+package Inventario_Fusionado.database;
 
 import java.io.BufferedReader;
-// Removemos FileReader ya que leeremos como recurso
-// import java.io.FileReader;
-import java.io.File; // Importamos File
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,24 +19,23 @@ public class DatabaseInitializer {
     // Método para inicializar la base de datos ejecutando el script SQL
     public static void initializeDatabase() {
         // Verificar si la base de datos ya existe para no reinicializar siempre
-        File dbFile = new File(DBManager.getDatabaseFilePath()); // Llama al método de DBManager
-        boolean dbExists = dbFile.exists() && dbFile.length() > 0;
+        // File dbFile = new File(DBManager.getDatabaseFilePath()); // Llama al método de DBManager
+        // boolean dbExists = dbFile.exists() && dbFile.length() > 0;
 
-        // Solo inicializar si la base de datos NO existe o está vacía
-        // Descomentar estas 3 líneas si NO quieres que se ejecute siempre al arrancar
-        // if (!dbExists) {
+        // >>> DESCOMENTAR LAS SIGUIENTES LÍNEAS SI NO QUIERES REINICIALIZAR LA BD CADA VEZ <<<
+        // if (!dbExists) { 
         //    System.out.println("La base de datos no existe o está vacía. Inicializando...");
         // } else {
-        //     System.out.println("La base de datos ya existe en: " + dbFile.getAbsolutePath() + ". No se reinicializa.");
+        //     System.out.println("La base de datos ya existe. No se reinicializa.");
         //     return; // Salir si ya existe
         // }
+        // >>> FIN BLOQUE PARA DESCOMENTAR <<<
 
         System.out.println("Intentando inicializar base de datos desde script recurso: " + SQL_SCRIPT_RESOURCE_PATH);
 
         // Usar ClassLoader para leer el recurso desde el classpath
-        try (InputStream is = DatabaseInitializer.class.getResourceAsStream(SQL_SCRIPT_RESOURCE_PATH);
-             Connection connection = DBManager.getConnection(); // Obtener conexión
-             Statement statement = connection.createStatement()) { // Crear statement aquí
+        // Usamos try-with-resources para Connection, Statement, InputStream, InputStreamReader y BufferedReader
+        try (InputStream is = DatabaseInitializer.class.getResourceAsStream(SQL_SCRIPT_RESOURCE_PATH)) {
 
             if (is == null) {
                 System.err.println("FATAL: No se pudo encontrar el archivo de script SQL como recurso: " + SQL_SCRIPT_RESOURCE_PATH);
@@ -45,8 +43,9 @@ public class DatabaseInitializer {
                 return; // Salir si no se encuentra el script
             }
 
-            // Usar try-with-resources para los readers también
-            try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8); // Especificar UTF-8
+            try (Connection connection = DBManager.getConnection(); // Obtener conexión aquí
+                 Statement statement = connection.createStatement(); // Crear statement aquí
+                 InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8); // Especificar UTF-8
                  BufferedReader reader = new BufferedReader(isr)) {
 
                 String line;
@@ -78,6 +77,10 @@ public class DatabaseInitializer {
                         finalSql = finalSql.replaceAll("DEFAULT\\s+CHARSET\\s*=\\s*\\w+", "");
                         finalSql = finalSql.replaceAll("COMMENT\\s+'.*?'", "");
                         finalSql = finalSql.replaceAll("VISIBLE", "");
+                        finalSql = finalSql.replaceAll("(?i)ON\\s+UPDATE\\s+CURRENT_TIMESTAMP", ""); // Quitar ON UPDATE
+                        finalSql = finalSql.replaceAll("(?i)ON\\s+DELETE\\s+CASCADE", ""); // Quitar ON DELETE CASCADE si da problemas, aunque SQLite lo soporta con PRAGMA foreign_keys=ON;
+                        finalSql = finalSql.replaceAll("(?i)DATETIME", "TEXT"); // Convertir DATETIME a TEXT (formato común en SQLite para fechas)
+                        finalSql = finalSql.replaceAll("(?i)DECIMAL\\(\\d+,\\d+\\)", "REAL"); // Convertir DECIMAL a REAL
                         // SQLite maneja AUTOINCREMENT con INTEGER PRIMARY KEY, MySQL usa INT(11), cambiamos
                         finalSql = finalSql.replaceAll("INT\\(\\d+\\)", "INTEGER");
                         // --- Fin Limpieza ---
@@ -88,13 +91,12 @@ public class DatabaseInitializer {
                                 statement.execute(finalSql);
                                 commandCount++;
                             } catch (SQLException sqle) {
-                                // Ignorar errores comunes si la tabla/etc ya existe (puede pasar si no se borra el .db)
-                                if (!sqle.getMessage().contains("already exists")) {
+                                // Ignorar errores comunes si la tabla/etc ya existe
+                                if (!sqle.getMessage().contains("already exists") && !sqle.getMessage().contains("duplicate column name")) {
                                     System.err.println("Error ejecutando SQL: " + finalSql);
                                     System.err.println("SQLException: " + sqle.getMessage() + " (SQLState: " + sqle.getSQLState() + ", ErrorCode: " + sqle.getErrorCode() + ")");
-                                    // Podrías decidir si continuar o detenerte ante un error
                                 } else {
-                                    System.out.println("INFO: Objeto ya existía (Ignorado): " + finalSql.substring(0, Math.min(finalSql.length(), 60)) + "...");
+                                    // System.out.println("INFO: Objeto ya existía (Ignorado): " + finalSql.substring(0, Math.min(finalSql.length(), 60)) + "...");
                                 }
                             }
                         }
@@ -102,13 +104,14 @@ public class DatabaseInitializer {
                     }
                 } // Fin while
                 System.out.println("Inicialización de base de datos completada. Se intentaron ejecutar " + commandCount + " comandos.");
-            } // Cierre automático de readers
+
+            } // Cierre automático de readers, statement, connection (si se obtuvo)
 
         } catch (IOException e) {
             System.err.println("Error al leer el archivo SQL recurso: " + SQL_SCRIPT_RESOURCE_PATH);
             e.printStackTrace();
         } catch (SQLException e) {
-            System.err.println("Error de SQL durante la inicialización de la base de datos (conexión o statement): " + e.getMessage());
+            System.err.println("Error de SQL durante la inicialización (puede ser al obtener conexión): " + e.getMessage());
             e.printStackTrace();
         } catch (NullPointerException e) {
             System.err.println("Error Crítico: NullPointerException al intentar leer el recurso SQL. ¿Está el archivo en el classpath? " + SQL_SCRIPT_RESOURCE_PATH);
