@@ -1,0 +1,193 @@
+body {
+    font-family: 'Georgia', serif;
+    /* background-color: #f7f0e8; */ /* Color anterior comentado/eliminado */
+    margin: 0;
+    padding: 0;
+    color: #333;
+
+    /* --- Fondo añadido --- */
+    background-image: url('../images/image_226ba8.jpg'); /* Ruta relativa correcta desde css/ */
+    background-size: cover;         /* Cubrir todo el espacio */
+    background-repeat: no-repeat;   /* No repetir la imagen */
+    background-position: center center; /* Centrar la imagen */
+    background-attachment: fixed;   /* Fijar la imagen durante el scroll */
+    min-height: 100vh;              /* Asegurar altura mínima */
+    /* --- Fin fondo añadido --- */
+}
+
+
+.container {
+    max-width: 960px;
+    margin: 40px auto; /* Margen superior/inferior para separar del borde */
+    padding: 30px;
+    background-color: #fff; /* Mantenemos el fondo blanco opaco */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 1s ease-in forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 1rem;
+}
+
+.styled-table th, .styled-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.styled-table th {
+    background-color: #f2e6d9; /* Color cabecera tabla */
+}
+
+.btn {
+    background-color: #4a3f35; /* Color botón */
+    color: #fff;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 4px;
+    margin: 0 4px;
+    display: inline-block;
+    border: none; /* Asegurar que no tenga borde por defecto */
+    cursor: pointer; /* Indicar que es clickeable */
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #3b312a; /* Color botón hover */
+}
+
+/* Botones secundarios (ej: Cancelar) */
+.btn-secondary {
+    background-color: #8c7d70; /* Un gris/marrón más suave */
+    color: #fff;
+}
+.btn-secondary:hover {
+    background-color: #73665a;
+}
+
+/* Ajustes específicos para botones en tarjetas (visualizar-inventarios.jsp) */
+.card .action-buttons .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+    margin-left: 5px;
+}
+.card .action-buttons .btn-warning { /* Asumiendo que usas btn-warning para editar */
+    background-color: #e6a84f; /* Un color tipo ocre/dorado */
+    color: #fff;
+}
+.card .action-buttons .btn-warning:hover {
+    background-color: #d48f32;
+}
+.card .action-buttons .btn-danger { /* Asumiendo que usas btn-danger para eliminar */
+    background-color: #c84c4c; /* Un rojo no tan estridente */
+    color: #fff;
+}
+.card .action-buttons .btn-danger:hover {
+    background-color: #a93a3a;
+}
+
+
+.table-container {
+    max-height: 500px; /* Permite scroll si la tabla es muy larga */
+    overflow-y: auto;
+}
+
+/* Añadido: Estilos para el formulario (inventario-form.jsp) */
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    box-sizing: border-box; /* Incluir padding y borde en el ancho total */
+}
+
+.form-control:focus {
+    color: #495057;
+    background-color: #fff;
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Añadido: Estilos para las tarjetas (visualizar-inventarios.jsp) */
+.card {
+    max-width: 600px;
+    margin: 0 auto 20px auto; /* Centrar tarjeta y añadir margen inferior */
+    background-color: #fff;
+    padding: 20px 25px; /* Un poco más de padding */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative; /* Para posicionar botones de acción */
+    border: 1px solid #e0e0e0;
+}
+
+.card h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.4em;
+    color: #4a3f35; /* Coincidir con botones */
+}
+
+.card p {
+    margin-bottom: 8px;
+    font-size: 1.1em;
+    line-height: 1.6;
+}
+
+.card p strong {
+    display: inline-block;
+    min-width: 80px;
+    color: #555;
+}
+
+.card .action-buttons {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+
+/* Contenedor para acciones a nivel de página (ej: Añadir Nuevo) */
+.page-actions {
+    text-align: right;
+    margin: 0 auto 20px auto; /* Centrar y añadir margen inferior */
+    max-width: 600px; /* Alinear con las tarjetas */
+    padding-right: 0; /* Ajustar si es necesario */
+}
+
+/* Estilos para mensajes de error (puedes personalizarlos más) */
+.error-message {
+    color: #721c24; /* Rojo oscuro */
+    background-color: #f8d7da; /* Rosa claro */
+    border: 1px solid #f5c6cb; /* Borde rojo claro */
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    text-align: center;
+}

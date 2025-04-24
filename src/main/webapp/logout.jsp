@@ -1,16 +1,7 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: guill
-  Date: 23/04/2025
-  Time: 23:02
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<head>
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+<%
+  if (session != null) {
+    session.invalidate(); // Cierra la sesión actual
+  }
+  response.sendRedirect("login.jsp"); // Redirige al login
+%>

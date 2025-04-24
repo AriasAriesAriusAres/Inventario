@@ -1,18 +1,19 @@
-package Inventario_Fusionado.dao; // Ajusta el paquete
+package Inventario_Fusionado.dao;
 
 import Inventario_Fusionado.database.DBManager;
-import Inventario_Fusionado.model.Product; // Asegúrate que Product.java esté en model
+import Inventario_Fusionado.model.Product;
+import Inventario_Fusionado.model.ProductoBuffer;
+import Inventario_Fusionado.model.Movimiento;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
 
 public class ProductDAO {
 
-    // Obtener todos los productos
     public List<Product> getAllProducts() {
         List<Product> products = new ArrayList<>();
-        // Verifica nombres de columna en Inventario.sql (tabla productos)
         String sql = "SELECT id_producto, nombre, descripcion, precio, stock, id_inventario FROM productos";
 
         try (Connection conn = DBManager.getConnection();
@@ -24,7 +25,7 @@ public class ProductDAO {
                         rs.getInt("id_producto"),
                         rs.getString("nombre"),
                         rs.getString("descripcion"),
-                        rs.getBigDecimal("precio"), // Asumiendo que Product usa BigDecimal
+                        rs.getBigDecimal("precio"),
                         rs.getInt("stock"),
                         rs.getInt("id_inventario")
                 );
@@ -37,10 +38,8 @@ public class ProductDAO {
         return products;
     }
 
-    // Obtener productos por ID de Inventario
     public List<Product> getProductsByInventoryId(int inventoryId) {
         List<Product> products = new ArrayList<>();
-        // Verifica columnas
         String sql = "SELECT id_producto, nombre, descripcion, precio, stock, id_inventario FROM productos WHERE id_inventario = ?";
 
         try (Connection conn = DBManager.getConnection();
@@ -67,9 +66,7 @@ public class ProductDAO {
         return products;
     }
 
-    // Agregar Producto
     public boolean addProduct(Product product) {
-        // Verifica columnas: nombre, descripcion, precio, stock, id_inventario
         String sql = "INSERT INTO productos(nombre, descripcion, precio, stock, id_inventario) VALUES(?, ?, ?, ?, ?)";
         try (Connection conn = DBManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -85,7 +82,7 @@ public class ProductDAO {
             if (affectedRows > 0) {
                 try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        product.setIdProducto(generatedKeys.getInt(1)); // Asume setIdProducto(int)
+                        product.setIdProducto(generatedKeys.getInt(1));
                     }
                 }
             }
@@ -98,9 +95,7 @@ public class ProductDAO {
         }
     }
 
-    // Borrar Producto
     public boolean deleteProduct(int id) {
-        // Verifica columna: id_producto
         String sql = "DELETE FROM productos WHERE id_producto = ?";
         try (Connection conn = DBManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -114,9 +109,7 @@ public class ProductDAO {
         }
     }
 
-    // Actualizar Producto
     public boolean updateProduct(Product product) {
-        // Verifica columnas: nombre, descripcion, precio, stock, id_inventario, id_producto
         String sql = "UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, stock = ?, id_inventario = ? WHERE id_producto = ?";
         try (Connection conn = DBManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -125,7 +118,7 @@ public class ProductDAO {
             pstmt.setBigDecimal(3, product.getPrecio());
             pstmt.setInt(4, product.getStock());
             pstmt.setInt(5, product.getIdInventario());
-            pstmt.setInt(6, product.getIdProducto()); // Asume getIdProducto()
+            pstmt.setInt(6, product.getIdProducto());
 
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;
@@ -136,9 +129,7 @@ public class ProductDAO {
         }
     }
 
-    // Obtener un producto por ID
     public Product getProductById(int id) {
-        // Verifica columnas
         String sql = "SELECT id_producto, nombre, descripcion, precio, stock, id_inventario FROM productos WHERE id_producto = ?";
         Product product = null;
         try (Connection conn = DBManager.getConnection();
@@ -162,5 +153,31 @@ public class ProductDAO {
             e.printStackTrace();
         }
         return product;
+    }
+
+    public boolean approveChange(ProductoBuffer pb) {
+        String sql = "INSERT INTO productos (nombre, descripcion, precio, stock, id_inventario) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DBManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            pstmt.setString(1, pb.getNombre());
+            pstmt.setString(2, pb.getDescripcion());
+            pstmt.setBigDecimal(3, pb.getPrecio());
+            pstmt.setInt(4, pb.getStock());
+            pstmt.setInt(5, pb.getIdInventario());
+
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al aprobar solicitud de producto: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean rejectChange(int idProducto, String motivo) {
+        System.out.println("Solicitud de cambio rechazada para producto ID: " + idProducto + ". Motivo: " + motivo);
+        return true;
     }
 }

@@ -1,52 +1,51 @@
-package Inventario_Fusionado.model; // O el paquete de modelo que hayas definido
+package Inventario_Fusionado.model;
 
 public class Inventory {
-    private int idInventario;
-    private String nombre;
-    private String descripcion;
+    private int id;
+    private String nombreProducto;
+    private int cantidad;
 
-    // Constructor vacío (útil para algunas operaciones)
-    public Inventory() {
-    }
+    // Constructor vacío
+    public Inventory() {}
 
-    // Constructor con todos los campos
-    public Inventory(int idInventario, String nombre, String descripcion) {
-        this.idInventario = idInventario;
-        this.nombre = nombre;
-        this.descripcion = descripcion;
+    // Constructor con parámetros
+    public Inventory(int id, String nombreProducto, int cantidad) {
+        this.id = id;
+        this.nombreProducto = nombreProducto;
+        this.cantidad = cantidad;
     }
 
     // Getters y Setters
-    public int getIdInventario() {
-        return idInventario;
+    public int getId() {
+        return id;
     }
 
-    public void setIdInventario(int idInventario) {
-        this.idInventario = idInventario;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getNombreProducto() {
+        return nombreProducto;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNombreProducto(String nombreProducto) {
+        this.nombreProducto = nombreProducto;
     }
 
-    public String getDescripcion() {
-        return descripcion;
+    public int getCantidad() {
+        return cantidad;
     }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
     }
 
     @Override
     public String toString() {
         return "Inventory{" +
-                "idInventario=" + idInventario +
-                ", nombre='" + nombre + '\'' +
-                ", descripcion='" + descripcion + '\'' +
+                "id=" + id +
+                ", nombreProducto='" + nombreProducto + '\'' +
+                ", cantidad=" + cantidad +
                 '}';
     }
 }

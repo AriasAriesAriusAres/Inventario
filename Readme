@@ -1,3 +1,102 @@
+# Inventario_Fusionado (v1.0 - Web Viewer + SQLite)
+
+## 1. Descripción del Proyecto
+
+Aplicación web básica para la gestión de inventarios y productos asociados. Permite realizar operaciones CRUD (Crear, Leer, Actualizar, Borrar) sobre los datos.
+
+Este proyecto es el resultado de fusionar y adaptar funcionalidades de dos proyectos anteriores:
+* `INVENTARIO-EJMPLO-PROYECTO`: Una aplicación web con Servlets/JSP y MySQL.
+* `Stock_Management`: Una aplicación de escritorio JavaFX con SQLite.
+
+La versión actual (1.0) se enfoca en la interfaz web utilizando una base de datos SQLite local.
+
+## 2. Características Actuales (Fase 1.0)
+
+* **Gestión de Inventarios:**
+    * Listar todos los inventarios.
+    * Añadir un nuevo inventario (nombre, descripción).
+    * Editar un inventario existente.
+    * Borrar un inventario.
+* **Gestión de Productos:**
+    * Los modelos (`Product.java`) y DAOs (`ProductDAO.java`) están creados y adaptados para SQLite.
+    * *Nota: La interfaz web (Controller/JSPs) para gestionar productos aún no está implementada en esta fase.*
+* **Persistencia:** Los datos se almacenan localmente en un archivo de base de datos SQLite (`InventarioFusionado.db`).
+* **Interfaz:** Acceso vía navegador web a través de páginas JSP servidas por Apache Tomcat.
+
+## 3. Stack Tecnológico
+
+* **Lenguaje:** Java (Compilado con JDK 24, compatible con JDK 17+)
+* **Build Tool:** Apache Maven
+* **Backend:** Jakarta EE
+    * Jakarta Servlet 6.0
+    * Jakarta Server Pages (JSP) 3.1
+    * Jakarta Standard Tag Library (JSTL) 3.0
+* **Base de Datos:** SQLite (Embebida, gestionada vía JDBC `sqlite-jdbc`)
+* **Servidor de Aplicaciones:** Apache Tomcat 10.1.x
+
+## 4. Configuración del Entorno
+
+* **Java:** JDK 17 o superior instalado y configurado (`JAVA_HOME` y `Path`).
+* **Maven:** Necesario para construir el proyecto (se puede usar el wrapper `mvnw.cmd`).
+* **Base de Datos:** No requiere instalación externa. La base de datos SQLite (`InventarioFusionado.db`) se crea y gestiona automáticamente por la aplicación en la carpeta `database/` (relativa al directorio de ejecución) gracias a `DBManager.java` y `DatabaseInitializer.java`.
+* **Script SQL:** El esquema (`inventarios`, `productos`) se crea a partir de `src/main/resources/sqlite/Inventario.sql`.
+
+## 5. Cómo Ejecutar la Aplicación
+
+1.  **Construir el Proyecto:**
+    * Abrir una terminal en la carpeta raíz del proyecto (`Inventario_Fusionado`).
+    * Ejecutar: `mvnw.cmd clean package` (o usar las tareas `clean` y `package` en IntelliJ).
+    * Esto genera el archivo `target/Inventario_Fusionado.war`.
+
+2.  **Desplegar en Tomcat:**
+    * Asegurarse de que Tomcat 10.1.x esté instalado.
+    * Detener Tomcat si está corriendo (`shutdown.bat`).
+    * Borrar versiones anteriores de la aplicación de la carpeta `tomcat/webapps/`.
+    * Copiar `target/Inventario_Fusionado.war` a `tomcat/webapps/`.
+
+3.  **Iniciar Tomcat:**
+    * Ejecutar `startup.bat` desde la carpeta `tomcat/bin/`.
+    * Revisar los logs de Tomcat (`logs/catalina...`) para verificar el arranque y la inicialización de la base de datos (buscar mensajes de `WebAppInitializer`, `DBManager`, `DatabaseInitializer`).
+
+4.  **Acceder a la Aplicación:**
+    * Abrir un navegador web.
+    * Ir a: `http://localhost:8080/Inventario_Fusionado/`
+    * Navegar a la lista de inventarios usando el enlace proporcionado.
+
+## 6. Estructura del Proyecto (Simplificada)
+Inventario_Fusionado/
+├── pom.xml            # Configuración Maven
+├── database/          # Aquí se creará InventarioFusionado.db
+├── src/
+│   ├── main/
+│   │   ├── java/      # Código fuente Java
+│   │   │   └── Inventario_Fusionado/ # (O tu paquete base)
+│   │   │       ├── controller/  # Servlets (InventoryController)
+│   │   │       ├── dao/         # DAOs (InventoryDAO, ProductDAO)
+│   │   │       ├── database/    # Lógica BD (DBManager, DatabaseInitializer)
+│   │   │       ├── listener/    # Listeners (WebAppInitializer)
+│   │   │       └── model/       # Modelos (Inventory, Product)
+│   │   ├── resources/ # Recursos
+│   │   │   └── sqlite/
+│   │   │       └── Inventario.sql # Script creación BD
+│   │   └── webapp/    # Contenido Web
+│   │       ├── WEB-INF/
+│   │       │   └── web.xml
+│   │       ├── index.jsp
+│   │       ├── list-inventarios.jsp
+│   │       └── inventario-form.jsp
+│   └── test/          # Pruebas (actualmente vacío)
+└── target/            # Salida de la compilación (contiene .war)
+
+## 7. Roadmap / Futuras Mejoras (Fase 2.0+)
+
+* Desarrollar aplicación de escritorio JavaFX como visor/editor alternativo.
+* Integrar gestión completa de Productos en la interfaz web.
+* Integrar gestión de Usuarios (login, roles) basada en `Stock_Management`.
+* Integrar registro de Movimientos de stock basado en `Stock_Management`.
+* Mejorar la interfaz de usuario web (posiblemente con Bootstrap u otro framework CSS).
+* Implementar pruebas unitarias (JUnit).
+* Refinar el manejo de errores.
 ===============================================================
 README - Inventario_Fusionado (v1.5 - CRUD Inventario Establecido + Login)
 ===============================================================
@@ -119,3 +218,856 @@ Inventario_Fusionado/
     * Implementar manejo de errores más detallado.
     * Considerar Pruebas Unitarias.
     * Completar ajuste `nombre_producto` en `InventoryController`/`inventario-form.jsp`.
+-----------------------------------------------------------------------------------------------------------------------------------------
+Diagrama de Clases
+------------------------------------------------------------------------------------------------------------------------------------------
+    +------------------------------------+
+    |            <<Model>>               |
+    |           Inventory                |
+    +------------------------------------+
+    | - id: int                          |
+    | - nombreProducto: String           |
+    | - cantidad: int                    |
+    +------------------------------------+
+    | + Inventory()                      |
+    | + Inventory(int, String, int)      |
+    | + getId(): int                     |
+    | + getNombreProducto(): String      |
+    | + getCantidad(): int               |
+    | + setId(int): void                 |
+    | + setNombreProducto(String): void  |
+    | + setCantidad(int): void           |
+    +------------------------------------+
+
+    +----------------------------------+
+    |          <<Model>>               |
+    |           Product                |
+    +----------------------------------+
+    | - idProducto: int                |
+    | - nombre: String                 |
+    | - descripcion: String            |
+    | - precio: BigDecimal             |
+    | - stock: int                     |
+    | - idInventario: int              |
+    +----------------------------------+
+    | + Product()                      |
+    | + Product(...)                   |
+    | + getIdProducto(): int           |
+    | + getNombre(): String            |
+    | + getDescripcion(): String       |
+    | + getPrecio(): BigDecimal        |
+    | + getStock(): int                |
+    | + getIdInventario(): int         |
+    | + setIdProducto(int): void       |
+    | + setNombre(String): void        |
+    | + setDescripcion(String): void   |
+    | + setPrecio(BigDecimal): void    |
+    | + setStock(int): void            |
+    | + setIdInventario(int): void     |
+    +----------------------------------+
+
+    +----------------------------------+
+    |          <<Model>>               |
+    |           Usuario                |
+    +----------------------------------+
+    | - idUsuario: int                 |
+    | - username: String               |
+    | - password: String               |
+    +----------------------------------+
+    | + Usuario()                      |
+    | + Usuario(int, String, String)   |
+    | + Usuario(String, String)        |
+    | + getIdUsuario(): int            |
+    | + getUsername(): String          |
+    | + getPassword(): String          |
+    | + setIdUsuario(int): void        |
+    | + setUsername(String): void      |
+    | + setPassword(String): void      |
+    +----------------------------------+
+
+    +----------------------------------+
+    |          <<Model>>               |
+    |         Movimiento               |
+    |       (Planificada)              |
+    +----------------------------------+
+    | - idMovimiento: int              |
+    | - idUsuario: int                 |
+    | - fechaHora: String/Timestamp    |
+    | - tablaAfectada: String          |
+    | - idRegistroAfectado: int        |
+    | - accion: String                 |
+    | - estado: String                 |
+    | - detallesCambio: String         |
+    +----------------------------------+
+    | + Movimiento()                   |
+    | + // Getters & Setters...        |
+    +----------------------------------+
+
+    +----------------------------------+
+    |          <<Model>>               |
+    |       ProductoBuffer             |
+    |       (Planificada)              |
+    +----------------------------------+
+    | - idBuffer: int                  |
+    | - nombre: String                 |
+    | - descripcion: String            |
+    | - precio: BigDecimal             |
+    | - stock: int                     |
+    | - idInventario: int              |
+    | - estado: String                 |
+    | - idUsuarioSolicitud: int        |
+    | - timestampSolicitud: String     |
+    | - idProductoOriginal: Integer?   |
+    | - mensajeRechazo: String?        |
+    +----------------------------------+
+    | + ProductoBuffer()               |
+    | + // Getters & Setters...        |
+    +----------------------------------+
+
+    +---------------------------------------+
+    |              <<DAO>>                  |
+    |            InventoryDAO               |
+    +---------------------------------------+
+    | - // DBManager via getConnection      |
+    +---------------------------------------+
+    | + getAllInventories(): List           |
+    | + getInventoryById(int): Inventory   |
+    | + addInventory(Inventory): boolean    |
+    | + updateInventory(Inventory): boolean |
+    | + deleteInventory(int): boolean       |
+    +---------------------------------------+
+
+    +------------------------------------------+
+    |               <<DAO>>                    |
+    |              ProductDAO                  |
+    +------------------------------------------+
+    | - // DBManager via getConnection         |
+    +------------------------------------------+
+    | + getAllProducts(): List                 |
+    | + getProductsByInventoryId(int): List    |
+    | + getProductById(int): Product          |
+    | + addProduct(Product): boolean           |
+    | + updateProduct(Product): boolean        |
+    | + deleteProduct(int): boolean            |
+    | + approveChange(int): boolean?           |
+    | + rejectChange(int, String): boolean?    |
+    +------------------------------------------+
+
+    +-----------------------------------------+
+    |               <<DAO>>                   |
+    |              UsuarioDAO                 |
+    +-----------------------------------------+
+    | - // DBManager via getConnection        |
+    +-----------------------------------------+
+    | + obtenerPorUsername(String): Usuario   |
+    | + validarUsuario(String, String): boolean|
+    | + registrarUsuario(Usuario): boolean    |
+    | + eliminarUsuario(int): boolean         |
+    +-----------------------------------------+
+
+    +------------------------------------------+
+    |               <<DAO>>                    |
+    |            MovimientoDAO                 |
+    |           (Planificada)                  |
+    +------------------------------------------+
+    | - // DBManager via getConnection         |
+    +------------------------------------------+
+    | + addMovimiento(Movimiento): boolean     |
+    | + getMovimientos(...): List              |
+    | + updateMovimientoEstado(...): boolean   |
+    | + // ... otros metodos ...               |
+    +------------------------------------------+
+
+    +---------------------------------------+
+    |              <<DAO>>                  |
+    |          ProductBufferDAO             |
+    |           (Planificada)               |
+    +---------------------------------------+
+    | - // DBManager via getConnection      |
+    +---------------------------------------+
+    | + requestProductChange(...): int      |
+    | + getPendingChanges(): List           |
+    | + getBufferById(int): ProductoBuffer  |
+    | + updateBufferState(...): boolean     |
+    | + // ... otros metodos ...            |
+    +---------------------------------------+
+
+    +------------------------------------------+
+    |            <<Controller>>                |
+    |         InventoryController              |
+    +------------------------------------------+
+    | - inventoryDAO: InventoryDAO             |
+    +------------------------------------------+
+    | + init(): void                           |
+    | + doGet(...)                             |
+    | + doPost(...)                            |
+    | - listInventarios(...)                   |
+    | - visualizarInventariosEnCascada(...)    |
+    | - showNewInventoryForm(...)              |
+    | - showEditInventoryForm(...)             |
+    | - insertInventory(...)                   |
+    | - updateInventory(...)                   |
+    | - deleteInventory(...)                   |
+    | - handleError(...)                       |
+    +------------------------------------------+
+
+    +--------------------------------+
+    |         <<Controller>>         |
+    |        LoginController         |
+    +--------------------------------+
+    | - usuarioDAO: UsuarioDAO       |
+    +--------------------------------+
+    | + init(): void                 |
+    | + doGet(...)                   |
+    | + doPost(...)                  |
+    +--------------------------------+
+
+    +----------------------------------------+
+    |            <<Controller>>              |
+    |          ProductController             |
+    |           (Planificada)                |
+    +----------------------------------------+
+    | - productDAO: ProductDAO             |
+    | - productBufferDAO: ProductBufferDAO |
+    | - movimientoDAO: MovimientoDAO       |
+    +----------------------------------------+
+    | + init(): void                       |
+    | + doGet(...)                         |
+    | + doPost(...)                        |
+    | - listProducts(...)                  |
+    | - showProductForm(...)               |
+    | - handleInsertRequest(...)           |
+    | - handleUpdateRequest(...)           |
+    | - handleDeleteRequest(...)           |
+    +----------------------------------------+
+
+    +------------------------------------+
+    |       <<Database Helper>>          |
+    |           DBManager              |
+    +------------------------------------+
+    | - DB_FOLDER: String                |
+    | - DB_FILENAME: String              |
+    | - DATABASE_URL: String             |
+    +------------------------------------+
+    | + getConnection(): Connection      |
+    | + getDatabaseFilePath(): String    |
+    | + getDatabaseUrl(): String         |
+    | - testConnection(): void           |
+    +------------------------------------+
+
+    +---------------------------------------+
+    |       <<Database Helper>>             |
+    |       DatabaseInitializer             |
+    +---------------------------------------+
+    | - SQL_SCRIPT_RESOURCE_PATH: String    |
+    +---------------------------------------+
+    | + initializeDatabase(): void          |
+    +---------------------------------------+
+
+    +-------------------------------+
+    |         <<Listener>>          |
+    |      WebAppInitializer        |
+    +-------------------------------+
+    | + contextInitialized(...)     |
+    | + contextDestroyed(...)       |
+    +-------------------------------+
+
+    +------------------------------------------+
+    |               <<Filter>>                 |
+    |         AuthenticationFilter             |
+    |            (Planificada)                 |
+    +------------------------------------------+
+    | - publicPaths: Set<String>               |
+    | - publicResourcePrefixes: Set<String>    |
+    +------------------------------------------+
+    | + init(FilterConfig): void               |
+    | + doFilter(ServletRequest, ...): void    |
+    | + destroy(): void                        |
+    +------------------------------------------+
+
+
+
+Notas sobre Relaciones Implícitas:
+- Controllers usan sus respectivos DAOs.
+- DAOs usan DBManager para obtener Connections.
+- DAOs operan sobre los objetos Model.
+- WebAppInitializer invoca a DatabaseInitializer.
+- ProductDAO (en approve/reject) interactuará con ProductBufferDAO.
+- ProductController usará ProductDAO, ProductBufferDAO y MovimientoDAO.
+- AuthenticationFilter interactúa con HttpSession (obtenida de HttpServletRequest).
+- Modelo Product tiene una FK a Inventory (id_inventario).
+- Modelo Movimiento tiene FK a Usuario (id_usuario).
+- Modelo ProductoBuffer tiene FK a Usuario (id_usuario_solicitud) e Inventory (id_inventario).
+
+----------------------------------------------------------------------------------------------------------------------
+
+===============================================================
+      DIAGRAMA DE CLASES Y RELACIONES - Inventario_Fusionado v1.5
+===============================================================
+
+.........................................................................................................................................
+...................................Diagrama de Clases Simplificado y Explicativo (v1.5) .................................................
+.........................................................................................................................................
+
+
++-------------------------+      +-------------------------+      +--------------------------+
+|   Configuración/Inicio  |      |     Acceso a Datos      |      |         Modelos          |
+|   (Setup & Startup)     |      |        (DAO)            |      |       (Entidades)        |
++-------------------------+      +-------------------------+      +--------------------------+
+|                         |      |                         |      |                          |
+|  WebAppInitializer.java | ---->| DatabaseInitializer.java|      |     Inventory.java       |
+|  (Listener - Inicio App)|      |  (Ejecuta SQL inicial)  |      |     Product.java         |
+|  - Detecta arranque     |      |  - Lee Inventario.sql   |      |     Usuario.java         |
+|  - Llama a Initializer  |      |  - Crea/Actualiza tablas|      |  (Representan datos      |
+|                         |      +-------------------------+      |   de tablas BD)          |
++-------------------------+                 |                      +--------------------------+
+            |                             |                                  ^
+            |                             |                                  | (Usados por DAOs)
+            V                             V                                  |
++-------------------------+      +-------------------------+      +--------------------------+
+|      DBManager.java     | <----|     InventoryDAO.java   | -----+                           |
+| (Gestor Conexión BD)    |      |     ProductDAO.java     | -----+ (Productos - Sin uso UI)  |
+| - Define URL conexión   |      |     UsuarioDAO.java     | -----+                           |
+| - Provee getConnection()|      | (Operaciones CRUD BD)   |                                  |
++-------------------------+      | - Contienen SQL         |                                  |
+                                 | - Usan DBManager        |                                  |
+                                 | - Mapean ResultSet a    |                                  |
+                                 |   Modelos               |                                  |
+                                 +-------------------------+
+                                           ^
+                                           | (Usados por Controllers)
+                                           |
++-------------------------+      +-------------------------+      +--------------------------+
+|      Controladores      |      |          Vistas         |      |     Recursos Web         |
+|       (Servlets)        |      |         (JSP)           |      |                          |
++-------------------------+      +-------------------------+      +--------------------------+
+| InventoryController.java| <--->| list-inventarios.jsp    |      |      Inventario.sql      |
+| LoginController.java    |      | inventario-form.jsp     |      |      (Schema BD)         |
+| (Manejan Peticiones)    |      | visualizar-inventarios.jsp|    |                          |
+| - Reciben HTTP Request  |      | index.jsp               |      |      style.css           |
+| - Llaman a métodos DAO  | <--->| login.jsp               |      |      Main.js             |
+| - Preparan datos (Attr)|      | logout.jsp               |      |      (Estilos/Scripts)   |
+| - Reenvían a JSPs       |      | (Muestran datos HTML)   |      |                          |
++-------------------------+      +-------------------------+      +--------------------------+
+
+Explicaciones de Componentes y Relaciones:
+
+Configuración/Inicio (listener, database):
+
+	WebAppInitializer.java:
+		Es un ServletContextListener. Se activa automáticamente cuando inicia la aplicación en Tomcat gracias a la anotación @WebListener. Su único propósito actual es llamar a DatabaseInitializer.
+
+	DatabaseInitializer.java:
+		Contiene la lógica para leer el archivo Inventario.sql desde los recursos de la aplicación.
+		Ejecuta las sentencias SQL para crear las tablas (inventarios, productos, usuarios, movimientos, productos_buffer)
+		y poblar datos iniciales si la base de datos no existe o está vacía (según la lógica comentada/descomentada). Usa DBManager para obtener la conexión.
+
+	DBManager.java:
+		Es el único punto para gestionar la conexión con la base de datos SQLite. Define la URL JDBC (la ruta al archivo .db),
+		carga el driver y proporciona el método estático getConnection() que usan todos los DAOs. También intenta crear la carpeta database/ si no existe.
+
+	Inventario.sql:
+		Es el schema de la base de datos. Define la estructura de todas las tablas y contiene los datos de ejemplo.
+		Es leído por DatabaseInitializer.
+
+	Modelos (model):
+		Inventory.java, Product.java, Usuario.java: Son clases POJO (Plain Old Java Objects).
+		Representan las tablas de la base de datos como objetos Java. Contienen atributos privados que coinciden con las columnas de las tablas y métodos públicos getters y setters para acceder a ellos.
+		Los DAOs los usan para devolver datos y recibir datos a insertar/actualizar.
+
+	Acceso a Datos (dao):
+		InventoryDAO.java, ProductDAO.java, UsuarioDAO.java: Contienen toda la lógica de interacción con la base de datos para una entidad específica (Inventario, Producto, Usuario).
+		Aquí residen las sentencias SQL (SELECT, INSERT, UPDATE, DELETE).
+		Usan DBManager.getConnection() para conectarse, ejecutan las consultas y mapean los resultados (ResultSet) a los objetos del Modelo correspondientes (o reciben objetos Modelo para guardar).
+		Son utilizados por los Controladores.
+
+	Controladores (controller):
+		InventoryController.java, LoginController.java: Son Servlets.
+		Manejan las peticiones HTTP que llegan desde el navegador (definidas por la anotación @WebServlet).
+		Analizan los parámetros de la solicitud (request.getParameter),
+		deciden qué acción realizar (basado en el parámetro action),
+		llaman a los métodos apropiados de los DAOs para obtener o modificar datos,
+		preparan los datos para la vista (usando request.setAttribute) y finalmente,
+		reenvían (RequestDispatcher.forward) o redirigen (response.sendRedirect) la solicitud a la vista JSP adecuada para generar la respuesta HTML.
+
+	Vistas (webapp/*.jsp):
+		index.jsp, login.jsp, logout.jsp, list-inventarios.jsp, inventario-form.jsp, visualizar-inventarios.jsp: Son JavaServer Pages. Generan el HTML dinámico que ve el usuario.
+		Reciben datos de los controladores (vía request.getAttribute), usan scriptlets <% %> (o JSTL si se añadiera) para mostrar esos datos,
+		procesar lógica simple de vista y construir formularios HTML que enviarán nuevas peticiones a los controladores. logout.jsp tiene lógica directa para invalidar la sesión.
+
+	Recursos Web (webapp/css, webapp/js):
+		style.css, Main.js: Archivos estáticos que proporcionan los estilos visuales y la funcionalidad JavaScript del lado del cliente a las páginas JSP.
+		Diagrama de Procesos Web Simplificado (v1.5)
+		Ilustra los flujos principales que confirmamos con las capturas.
+
+	>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Diagrama de Flujo de Login:
+
+[Usuario] --- 1. Abre ---> [Navegador: /Inventario_Fusionado/login.jsp] -- 2. Muestra Form --> [Usuario]
+                                                                                              |
+                                                                                              | 3. Introduce datos + Submit
+                                                                                              V
+[Usuario] <-- 8b. Muestra Error --- [Navegador: login.jsp] <--- 7b. Forward --- [LoginController] <-- 6b. Validación DAO: Falla -- [UsuarioDAO]
+     |                                                                                |
+     | 4. POST /login (user, pass)                                                    | 5. Llama a validarUsuario()
+     V                                                                                |
+[LoginController] --- 6a. Validación DAO: OK --> [UsuarioDAO] -- 6a.1 Obtiene Datos -> [Usuario]
+     |
+     | 7a. Obtiene Usuario, Crea Sesión ("usuario")
+     V
+[Navegador: /Inventario_Fusionado/index.jsp] <-- 8a. Redirect --- [LoginController]
+     |
+     | 9. Muestra Bienvenida
+     V
+[Usuario]
+Flujo de Editar Inventario:
+
+[Usuario] --- 1. Clic "Ver Inventarios" ---> [Navegador: index.jsp] -- 2. GET /inventario?action=list --> [InventoryController]
+                                                                                                                  |
+                                                                                                                  | 3. Llama a getAllInventories()
+                                                                                                                  V
+[InventoryController] <-- 4. Devuelve Lista<Inventory> --- [InventoryDAO] <-- 4.1 Consulta BD --- [DB: inventarios]
+     |
+     | 5. SetAttribute("inventarios"), Forward a list-inventarios.jsp
+     V
+[Navegador: list-inventarios.jsp] -- 6. Muestra Tabla --> [Usuario]
+                                                               |
+                                                               | 7. Clic "Editar" (ID=X)
+                                                               V
+[Usuario] <-- 12. Muestra Form con Datos --- [Navegador: inventario-form.jsp] <--- 11. Forward --- [InventoryController]
+                                                                                                       |
+     | 8. GET /inventario?action=edit&id=X                                                             | 10. SetAttribute("inventario")
+     V                                                                                                 |
+[InventoryController] --- 9. Llama a getInventoryById(X) --> [InventoryDAO] -- 9.1 Consulta BD -> [DB: inventarios]
+     |                                                         ^
+     | 13. Modifica Datos + Submit                             | 9.2 Devuelve Inventory
+     V                                                         |
+[InventoryController] <-- 16. Redirect a viewCascade <-----------------------------------------------+
+     |                                                                                                 |
+     | 14. POST /inventario (action=update, id=X, nombre_producto=Y, cantidad=Z)                       |
+     V                                                                                                 |
+[InventoryController] --- 15. Llama a updateInventory(inventory) --> [InventoryDAO] -- 15.1 Update BD -> [DB: inventarios]
+     |
+     | 17. GET /inventario?action=viewCascade (Nueva petición tras redirect)
+     V
+[InventoryController] --- 18. Llama a getAllInventories() --> [InventoryDAO] -- 18.1 Consulta BD -> [DB: inventarios]
+     |
+     | 19. SetAttribute("inventarios"), Forward a visualizar-inventarios.jsp
+     V
+[Navegador: visualizar-inventarios.jsp] -- 20. Muestra Tarjetas --> [Usuario]
+
+
+.........................................................................................................................................
+...................................Diagrama de Clases Ampliado con Relaciones    (v1.5) .................................................
+.........................................................................................................................................
+
+
+
+
+ Capa de Presentación / Control (Servlets / Filtros)     .     Capa de Acceso a Datos (DAO)             .      Capa de Modelo (Entidades)                                     .     Helpers / Configuración
+ -----------------------------------------------------   .      -------------------------------         .       -----------------------------                                 .      -----------------------------
+														 .                                              .                                                                     .
+                                                         .                                              .    +------------------------------------+                           .
+                                                         .                                              .    |            <<Model>>               |                           .
+                                                         .                                              .    |           Inventory                |                           .
+                                                         .                                              .    +------------------------------------+                           .
+                                                         .                                              .    | - id: int                          |                           .
+                                                         .                                              .    | - nombreProducto: String           |                           .
+                                                         .                                              .    | - cantidad: int                    |                           .
+                                                         .                                              .    +------------------------------------+                           .
+                                                         .                                              .    | + Inventory()                      |                           .
+                                                         .                                              .    | + Inventory(int, String, int)      |                           .
+                                                         .                                              .    | + // Getters & Setters...          |                           .
+                                                         .                                              .    +------------------------------------+                           .
+                                                         .+---------------------------------------+     .            /|\                                                      .
+                                                         .|              <<DAO>>                  |     .             | operates on                                           .
+                                                         .|            InventoryDAO               |-------------------+                                                       .
+                                                         .+---------------------------------------+     .                                                                     .
+                                                         .| + getAllInventories(): List           |     .                                                                     .
++------------------------------------------+             .| + getInventoryById(int): Inventory    |     .                                                                     .
+|            <<Controller>>                | uses DAO -> .| + addInventory(Inventory): boolean    |     .                                                                     .
+|         InventoryController              |             .| + updateInventory(Inventory): boolean |     .                                                                     .
++------------------------------------------+             .| + deleteInventory(int): boolean       |     .                                                                     .
+| - inventoryDAO: InventoryDAO             |             .+---------------------------------------+     .                                                                     .
++------------------------------------------+             .        | uses DBManager                      .                                                                     .
+| + init(): void                           |             .        |                                     .                                                                     .
+| + doGet(...)                             |             .        V                                     .                                                                     .
+| + doPost(...)                            |             .   +------------------------------------+     .                                                                     .
+| - listInventarios(...)                   |             .   |       <<Database Helper>>          |     .                                                                     .
+| - visualizarInventariosEnCascada(...)    |             .   |           DBManager                |     .                                                                     .
+| - showNewInventoryForm(...)              |             .   +------------------------------------+     .                                                                     .
+| - showEditInventoryForm(...)             |             .   | - DATABASE_URL: String             |     .                                                                     .
+| - insertInventory(...)                   |             .   +------------------------------------+     .                                                                     .
+| - updateInventory(...)                   |             .   | + getConnection(): Connection      |     .                                                                     .
+| - deleteInventory(...)                   |             .   | + // ... otros metodos ...         |     .                                                                     .
+| - handleError(...)                       |             .   +------------------------------------+     .                                                                     .
++------------------------------------------+             .                                              .                                                                     .
+														 .                                              .                                                                     .
+														 .                                              .                                                                     .
+                                                         .                                              .     +----------------------------------+                            .
+                                                         .                                              .     |          <<Model>>               |                            .
+                                                         .                                              .     |           Usuario                |                            .
+                                                         .                                              .     +----------------------------------+                            .
+                                                         .                                              .     | - idUsuario: int                 |                            .
+                                                         .                                              .     | - username: String               |                            .
+                                                         .                                              .     | - password: String               |                            .
+                                                         .+-----------------------------------------+   .     +----------------------------------+                            .
+                                                         .|               <<DAO>>                   |   .               /|\                                                   .
+                                                         .|              UsuarioDAO                 |   .                | operates on                                        .
++--------------------------------+ --------->uses DAO -> .| +-----------------------------------------+------------------+                                                    .
+|         <<Controller>>         |                       .| - // DBManager via getConnection        |   .                                                                     .
+|        LoginController         |                       .+-----------------------------------------+   .                                                                     .
++--------------------------------+                       .| + obtenerPorUsername(String): Usuario   |   .                                                                     .
+| - usuarioDAO: UsuarioDAO       |                       .| + validarUsuario(String, String): boolean|  .                                                                     .
++--------------------------------+                       .| + registrarUsuario(Usuario): boolean    |   .                                                                     .
+| + init(): void                 |                       .| + eliminarUsuario(int): boolean         |   .                                                                     .
+| + doGet(...)                   |                       .+-----------------------------------------+   .                                                                     .
+| + doPost(...)                  |                       .         | uses DBManager                     .                                                                     .
++--------------------------------+                       .         V                                    .                                                                     .
+                                                         .     (Hacia DBManager arriba)                 .                                                                     .
+														 .                                              .                                                                     .
+														 .                                              .                                                                     .
+                                                         .                                              .     +----------------------------------+                            .
+                                                         .                                              .     |          <<Model>>               |                            .
+                                                         .                                              .     |           Product                |                            .
+                                                         .                                              .     +----------------------------------+                            .
+                                                         .                                              .     | - idProducto: int                |                            .
+                                                         .                                              .     | - nombre: String                 |                            .
+                                                         .                                              .     | - descripcion: String            |                            .
+                                                         .                                              .     | - precio: BigDecimal             |                            .
+                                                         .+------------------------------------------+  .     | - stock: int                     |                            .
+                                                         .|               <<DAO>>                    |  .     | - idInventario: int              | FK -> Inventory            .
+                                                         .|              ProductDAO                  |  .     +----------------------------------+                            .
+                                                         .+------------------------------------------+  .              /|\                                                    .
+                                                         .| - // DBManager via getConnection         |  .               | operates on                                         .
+                                                         .| + getAllProducts(): List                 |------------------+                                                     .
+                                                         .| + getProductsByInventoryId(int): List    |  .                                                                     .
+                                                         .| + getProductById(int): Product           |  .                                                                     .
+                                                         .| + addProduct(Product): boolean           |  .                                                                     .
+                                                         .| + updateProduct(Product): boolean        |  .                                                                     .
+                                                         .| + deleteProduct(int): boolean            |  .                                                                     .
++----------------------------------------+               .| + approveChange(int): boolean?           |  .     uses DAO -> ProductBufferDAO (Planif.)                          .
+|            <<Controller>>              | uses DAO ->   .| + rejectChange(int, String): boolean?    |------------------> (+)                                                 .
+|          ProductController             |               .+------------------------------------------+  .                                                                     .
+|           (Planificada)                |               .      | uses DBManager                        .                                                                     .
++----------------------------------------+               .      V                                       .                                                                     .
+| - productDAO: ProductDAO               |               .(Hacia DBManager arriba)                      .                                                                     .
+| - productBufferDAO: ProductBufferDAO   |               .                                              .                                                                     .
+| - movimientoDAO: MovimientoDAO         |               .                                              .                                                                     .
++----------------------------------------+               .                                              .                                                                     .
+| + init(): void                         |              .                                              .                                                                     .
+| + doGet(...)                           |              .                                              .                                                                     .
+| + doPost(...)                          |              .                                              .                                                                     .
+| - // Métodos CRUD web con buffer ...   |              .                                              .                                                                     .
++----------------------------------------+               .                                              .                                                                     .
+														 .                                              .                                                                     .
+														 .                                              .                                                                     .
+                                                         .                                              .     +----------------------------------+                            .
+                                                         .                                              .     |          <<Model>>               |                            .
+                                                         .                                              .     |       ProductoBuffer             |                            .
+                                                         .                                              .     |       (Planificada)              |                            .
+                                                         .+---------------------------------------+     .     +----------------------------------+                            .
+                                                         .|              <<DAO>>                  |     .             /|\                                                     .
+                                                         .|          ProductBufferDAO             |     .              | operates on                                          .
+                                                         .|           (Planificada)               |--------------------+                                                      .
+                                                    (+)---> +-------------------------------------+     .                                                                     .
+                                                         .| - // DBManager via getConnection      | FK -> Usuario (idUsuarioSolicitud)                                        .
+                                                         .+---------------------------------------+ FK -> Inventory (idInventario)                                            .
+                                                         .| + requestProductChange(...): int      | FK -> Product (idProductoOriginal) ?                                      .
+                                                         .| + getPendingChanges(): List           |     .                                                                     .
+                                                         .| + getBufferById(int): ProductoBuffer  |     .                                                                     .
+                                                         .| + updateBufferState(...): boolean     |     .                                                                     .
+                                                         .+---------------------------------------+     .                                                                     .
+                                                         .           | uses DBManager                   .                                                                     .
+                                                         .           V                                  .                                                                     .
+                                                         .    (Hacia DBManager arriba)                  .                                                                     .
+														 .                                              .                                                                     .
+														 .                                              .                                                                     .
+                                                         .                                              .     +----------------------------------+                            .
+                                                         .                                              .     |          <<Model>>               |                            .
+                                                         .                                              .     |         Movimiento               |                            .
+                                                         .                                              .     |       (Planificada)              |                            .
+                                                         .+------------------------------------------+  .     +----------------------------------+                            .
+                                                         .|               <<DAO>>                    |  .               /|\                                                   .
+                                                         .|            MovimientoDAO                 |  .          | operates on                                              .
+                                                         .|           (Planificada)                  |--.----------+                                                          .
+                                                         .+------------------------------------------+  .                                                                     .
+                                                         .| - // DBManager via getConnection         |FK -> Usuario (idUsuario)                                               .
+                                                         .+------------------------------------------+  .                                                                     .
+                                                         .| + addMovimiento(Movimiento): boolean     |  .                                                                     .
+                                                         .| + getMovimientos(...): List              |  .                                                                     .
+                                                         .| + updateMovimientoEstado(...): boolean   |  .                                                                     .
+                                                         .+------------------------------------------+  .                                                                     .
+                                                         .           | uses DBManager                   .                                                                     .
+                                                         .           V                                  .                                                                     .
+                                                         .    (Hacia DBManager arriba)                  .                                                                     .
+														 .                                              .                                                                     .
++------------------------------------------+             .                                              .                                                                     .
+|               <<Filter>>                 |             .                                              .                                                                     .
+|         AuthenticationFilter             |             .                                              .                                                                     .
+|            (Planificada)                 |             .                                              .                                                                     .
++------------------------------------------+             .                                              .                                                                     .
+| - publicPaths: Set<String>               |             .                                              .                                                                     .
+| - publicResourcePrefixes: Set<String>    |             .                                              .                                                                     .
++------------------------------------------+             .                                              .                                                                     .
+| + init(FilterConfig): void               |             .                                              .                                                                     .
+| + doFilter(ServletRequest, ...): void    |  <-- Interacts with HttpSession                           .                                                                      .
+| + destroy(): void                        |             .                                              .                                                                     .
++------------------------------------------+             .                                              .                                                                     .
+														 .                                              .                                                                     .
+                                                         .+---------------------------------------+     .                                                                     .
+                                                         .|       <<Database Helper>>             |     .                                                                     .
+                                                         .|       DatabaseInitializer             |     .                                                                     .
++-------------------------------+               uses ---->|+--------------------------------------+    .                                                                      .
+|         <<Listener>>          |                        .| - SQL_SCRIPT_RESOURCE_PATH: String    |     .                                                                     .
+|      WebAppInitializer        |                        .+---------------------------------------+     .                                                                     .
++-------------------------------+                        .| + initializeDatabase(): void          |     .                                                                     .
+| + contextInitialized(...)     |                        .+---------------------------------------+     .                                                                     .
+| + contextDestroyed(...)       |                        .                                              .                                                                     .
++-------------------------------+                        .                                              .                                                                     .
+														 .                                              .                                                                     .
+														 .                                              .                                                                     .
+Leyenda / Notas:
+----------------
+- `uses DAO ->`: Indica que la clase de la izquierda (Controller/Filter) usa una instancia de la clase DAO de la derecha.
+- `operates on`: Indica que el DAO realiza operaciones sobre instancias del Modelo.
+- `uses DBManager`: Indica que el DAO usa la clase DBManager para obtener conexiones.
+- `FK -> Modelo`: Indica una relación conceptual basada en una clave foránea definida en el SQL.
+- `(+)`: Indica una dependencia planificada entre DAOs (ProductDAO usará ProductBufferDAO).
+- `(Planificada)`: Clase aún no implementada pero parte del diseño.
+
+
+===================================================================================
+           DIAGRAMA DE CLASES Y RELACIONES DETALLADO - Inventario_Fusionado v1.5
+===================================================================================
+
++-----------------------------------------------------+        +-----------------------------------------------------+     +-----------------------------------------------------+
+|                    <<Model>>                        |        |                    <<Model>>                        |     |                    <<Model>>                        |
+|                   Inventory                         |        |                     Product                         |     |                     Usuario                         |
++-----------------------------------------------------+        +-----------------------------------------------------+     +-----------------------------------------------------+
+| - id: int                                           |        | - idProducto: int                                   |     | - idUsuario: int                                    |
+| - nombreProducto: String                            |        | - nombre: String                                    |     | - username: String                                  |
+| - cantidad: int                                     |        | - descripcion: String                               |     | - password: String                                  |
++-----------------------------------------------------+        | - precio: BigDecimal                                |     +-----------------------------------------------------+
+| + Inventory()                                       |        | - stock: int                                        |     | + Usuario()                                         |
+| + Inventory(id: int, nombreProducto: String, cantidad: int)| | - idInventario: int     {FK -> Inventory}         |     | + Usuario(idUsuario: int, username: String, password: String)|
+| + getId(): int                                      |        +-----------------------------------------------------+     | + Usuario(username: String, password: String)       |
+| + setId(id: int): void                              |        | + Product()                                         |     | + getIdUsuario(): int                               |
+| + getNombreProducto(): String                       |        | + Product(id: int, nom: String, desc: String,       |     | + setIdUsuario(idUsuario: int): void                |
+| + setNombreProducto(nombreProducto: String): void   |        |           precio: BigDecimal, stock: int, invId: int) |     | + getUsername(): String                             |
+| + getCantidad(): int                                |        | + getIdProducto(): int                              |     | + setUsername(username: String): void             |
+| + setCantidad(cantidad: int): void                  |        | + setIdProducto(idProducto: int): void            |     | + getPassword(): String                             |
++-----------------------------------------------------+        | + getNombre(): String                               |     | + setPassword(password: String): void             |
+                                                               | + setNombre(nombre: String): void                   |     +-----------------------------------------------------+
+                                                               | + getDescripcion(): String                          |
+                                                               | + setDescripcion(descripcion: String): void         |
+                                                               | + getPrecio(): BigDecimal                           |
+                                                               | + setPrecio(precio: BigDecimal): void               |
+                                                               | + getStock(): int                                   |
+                                                               | + setStock(stock: int): void                        |
+                                                               | + getIdInventario(): int                            |
+                                                               | + setIdInventario(idInventario: int): void          |
+                                                               +-----------------------------------------------------+
+
++-----------------------------------------------------+        +-----------------------------------------------------+
+|                    <<Model>>                        |        |                    <<Model>>                        |
+|                   Movimiento                        |        |                 ProductoBuffer                      |
+|                  (Planificada)                      |        |                  (Planificada)                      |
++-----------------------------------------------------+        +-----------------------------------------------------+
+| - idMovimiento: int                                 |        | - idBuffer: int                                     |
+| - idUsuario: int          {FK -> Usuario}           |        | - nombre: String                                    |
+| - fechaHora: String // O LocalDateTime              |        | - descripcion: String                               |
+| - tablaAfectada: String                             |        | - precio: BigDecimal                                |
+| - idRegistroAfectado: int                           |        | - stock: int                                        |
+| - accion: String                                    |        | - idInventario: int       {FK -> Inventory}         |
+| - estado: String // O Enum                          |        | - estado: String // O Enum                          |
+| - detallesCambio: String                            |        | - idUsuarioSolicitud: int {FK -> Usuario}           |
++-----------------------------------------------------+        | - timestampSolicitud: String // O LocalDateTime     |
+| + Movimiento()                                      |        | - idProductoOriginal: Integer? {FK -> Product?}     |
+| + // Getters & Setters para todos los atributos...  |        | - mensajeRechazo: String?                           |
++-----------------------------------------------------+        +-----------------------------------------------------+
+                                                               | + ProductoBuffer()                                  |
+                                                               | + // Getters & Setters para todos los atributos...  |
+                                                               +-----------------------------------------------------+
+
+
++-----------------------------------------------------------+
+|                         <<DAO>>                           |
+|                       InventoryDAO                        |         operates on
++-----------------------------------------------------------+---------------------+
+| + getAllInventories(): List<Inventory>                    |                     |
+| + getInventoryById(id: int): Inventory                    |                     V
+| + addInventory(inventory: Inventory): boolean             |                [Inventory]
+| + updateInventory(inventory: Inventory): boolean          |
+| + deleteInventory(id: int): boolean                       |
++-----------------------------------------------------------+
+       | uses --> [DBManager]
+
+
++-----------------------------------------------------------+
+|                         <<DAO>>                           |
+|                       ProductDAO                          |         operates on
++-----------------------------------------------------------+---------------------+
+| + getAllProducts(): List<Product>                         |                     |
+| + getProductsByInventoryId(inventoryId: int): List<Product> |                     V
+| + getProductById(id: int): Product                        |                 [Product]
+| + addProduct(product: Product): boolean                   |
+| + updateProduct(product: Product): boolean                |
+| + deleteProduct(id: int): boolean                         | uses --> [ProductBufferDAO] (+)
+| + approveChange(idBuffer: int): boolean                   | // Planificado
+| + rejectChange(idBuffer: int, motivo: String): boolean    | // Planificado
++-----------------------------------------------------------+
+       | uses --> [DBManager]
+
+
++-----------------------------------------------------------+
+|                         <<DAO>>                           |
+|                       UsuarioDAO                          |         operates on
++-----------------------------------------------------------+---------------------+
+| + obtenerPorUsername(username: String): Usuario           |                     |
+| + validarUsuario(username: String, password: String): boolean|                    V
+| + registrarUsuario(usuario: Usuario): boolean             |                 [Usuario]
+| + eliminarUsuario(id: int): boolean                       |
++-----------------------------------------------------------+
+       | uses --> [DBManager]
+
+
++-----------------------------------------------------------+
+|                         <<DAO>>                           |
+|                     MovimientoDAO                         |         operates on
+|                     (Planificada)                         |
++-----------------------------------------------------------+---------------------+
+| + addMovimiento(movimiento: Movimiento): boolean          |                     |
+| + getMovimientos(...): List<Movimiento>                   |                     V
+| + updateMovimientoEstado(...): boolean                    |               [Movimiento]
+| + // ... otros metodos ...                                |
++-----------------------------------------------------------+
+       | uses --> [DBManager]
+
+
++-----------------------------------------------------------+
+|                         <<DAO>>                           |
+|                   ProductBufferDAO                        |         operates on
+|                     (Planificada)                         |
++-----------------------------------------------------------+---------------------+
+| + requestProductChange(prodData: Product, estado: String, |                     |
+|     userId: int, idOriginal: Integer?): int               |                     V
+| + getPendingChanges(): List<ProductoBuffer>               |             [ProductoBuffer]
+| + getBufferById(idBuffer: int): ProductoBuffer            |
+| + updateBufferState(idBuffer: int, newState: String): boolean |
+| + // ... otros metodos ...                                |
++-----------------------------------------------------------+
+       | uses --> [DBManager]
+
+
++-------------------------------------------------------------------------+
+|                             <<Controller>>                              |
+|                          InventoryController                            |
++-------------------------------------------------------------------------+
+| - inventoryDAO: InventoryDAO                                            | uses --> [InventoryDAO]
++-------------------------------------------------------------------------+
+| + init(): void                                                          |
+| # doGet(request: HttpServletRequest, response: HttpServletResponse): void|
+| # doPost(request: HttpServletRequest, response: HttpServletResponse): void|
+| - listInventarios(request: HttpServletRequest, response: HttpServletResponse): void|
+| - visualizarInventariosEnCascada(request: HttpServletRequest, response: HttpServletResponse): void|
+| - showNewInventoryForm(request: HttpServletRequest, response: HttpServletResponse): void|
+| - showEditInventoryForm(request: HttpServletRequest, response: HttpServletResponse): void|
+| - insertInventory(request: HttpServletRequest, response: HttpServletResponse): void|
+| - updateInventory(request: HttpServletRequest, response: HttpServletResponse): void|
+| - deleteInventory(request: HttpServletRequest, response: HttpServletResponse): void|
+| - handleError(request: HttpServletRequest, response: HttpServletResponse, message: String, e: Exception): void|
++-------------------------------------------------------------------------+
+
+
++-------------------------------------------------------------------------+
+|                             <<Controller>>                              |
+|                            LoginController                              |
++-------------------------------------------------------------------------+
+| - usuarioDAO: UsuarioDAO                                                | uses --> [UsuarioDAO]
++-------------------------------------------------------------------------+
+| + init(): void                                                          |
+| # doGet(request: HttpServletRequest, response: HttpServletResponse): void|
+| # doPost(request: HttpServletRequest, response: HttpServletResponse): void|
++-------------------------------------------------------------------------+
+
+
++-------------------------------------------------------------------------+
+|                             <<Controller>>                              |
+|                           ProductController                             |
+|                             (Planificada)                               |
++-------------------------------------------------------------------------+
+| - productDAO: ProductDAO                                                | uses --> [ProductDAO]
+| - productBufferDAO: ProductBufferDAO                                    | uses --> [ProductBufferDAO]
+| - movimientoDAO: MovimientoDAO                                          | uses --> [MovimientoDAO]
++-------------------------------------------------------------------------+
+| + init(): void                                                          |
+| # doGet(request: HttpServletRequest, response: HttpServletResponse): void|
+| # doPost(request: HttpServletRequest, response: HttpServletResponse): void|
+| - listProducts(...): void                                               |
+| - showProductForm(...): void                                            |
+| - handleInsertRequest(...): void                                        |
+| - handleUpdateRequest(...): void                                        |
+| - handleDeleteRequest(...): void                                        |
++-------------------------------------------------------------------------+
+
+
++-----------------------------------------------------------+
+|                      <<Database Helper>>                  |
+|                            DBManager                      |
++-----------------------------------------------------------+
+| - DB_FOLDER: String                                       | (final static)
+| - DB_FILENAME: String                                     | (final static)
+| - DATABASE_URL: String                                    | (final static)
++-----------------------------------------------------------+
+| + {static} getConnection(): Connection                    |
+| + {static} getDatabaseFilePath(): String                  |
+| + {static} getDatabaseUrl(): String                       |
+| - {static} testConnection(): void                         |
++-----------------------------------------------------------+
+
+
++-----------------------------------------------------------+
+|                      <<Database Helper>>                  |
+|                     DatabaseInitializer                   |
++-----------------------------------------------------------+
+| - SQL_SCRIPT_RESOURCE_PATH: String                        | (final static)
++-----------------------------------------------------------+
+| + {static} initializeDatabase(): void                     |
++-----------------------------------------------------------+
+
+
++-----------------------------------------------------------+
+|                         <<Listener>>                      |
+|                      WebAppInitializer                    |
++-----------------------------------------------------------+ uses --> [DatabaseInitializer]
+| + contextInitialized(sce: ServletContextEvent): void      |
+| + contextDestroyed(sce: ServletContextEvent): void        |
++-----------------------------------------------------------+
+
+
++-----------------------------------------------------------+
+|                          <<Filter>>                       |
+|                    AuthenticationFilter                   |
+|                         (Planificada)                     |
++-----------------------------------------------------------+ Interacts with HttpSession
+| - publicPaths: Set<String>                                |
+| - publicResourcePrefixes: Set<String>                     |
++-----------------------------------------------------------+
+| + init(config: FilterConfig): void                        |
+| + doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): void |
+| + destroy(): void                                         |
++-----------------------------------------------------------+
+
+
+Leyenda / Notas:
+----------------
+- `+` / `-` / `#`: Visibilidad public / private / protected (usado `#` para doGet/doPost de Servlets).
+- `: TipoDato`: Indica el tipo de dato del atributo o valor de retorno.
+- `(param: Tipo, ...): TipoRetorno`: Indica la firma del método.
+- `List<Modelo>`: Indica una lista de objetos del tipo Modelo.
+- `{FK -> Modelo}`: Indica una relación conceptual basada en clave foránea.
+- `{static}`: Indica un método o atributo estático.
+- `uses --> [CLASE]`: Indica una dependencia/uso de la clase indicada.
+- `(+)`: Indica una dependencia planificada entre DAOs.
+- `operates on`: Indica que el DAO trabaja con instancias del Modelo asociado.
+- `(Planificada)`: Clase aún no implementada.
