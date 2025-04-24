@@ -1,0 +1,121 @@
+===============================================================
+README - Inventario_Fusionado (v1.5 - CRUD Inventario Establecido + Login)
+===============================================================
+
+1. DESCRIPCIÓN DEL PROYECTO
+---------------------------
+Aplicación web para la gestión de inventarios y productos asociados, con funcionalidades de CRUD para inventarios y gestión básica de usuarios (Login/Logout). Utiliza Jakarta EE sobre Apache Tomcat y una base de datos SQLite embebida.
+
+Este proyecto es el resultado de fusionar y adaptar funcionalidades de dos proyectos anteriores:
+* INVENTARIO-EJMPLO-PROYECTO: Aplicación web con Servlets/JSP y MySQL.
+* Stock_Management: Aplicación de escritorio JavaFX con SQLite.
+
+La versión 1.5 estabiliza el CRUD de Inventarios, implementa el Login/Logout y prepara la base de datos para un futuro flujo de aprobación de cambios en productos.
+
+2. CARACTERÍSTICAS ACTUALES (v1.5)
+--------------------------------
+* **Gestión de Inventarios:**
+    * Listar inventarios (vista en cascada y vista en tabla).
+    * Añadir nuevo registro de inventario.
+    * Editar un registro existente.
+    * Borrar un registro.
+    * **Refactorizado:** Modelo (`Inventory.java`) y DAO (`InventoryDAO.java`) actualizados para usar `nombre_producto` y `cantidad`, consistentes con la BD (`Inventario.sql`).
+    * *Nota:* Pendiente menor: Alinear el *nombre* del parámetro/campo en `InventoryController` y `inventario-form.jsp` a `nombre_producto`.
+* **Gestión de Productos:**
+    * Modelos (`Product.java`) y DAOs (`ProductDAO.java`) creados.
+    * La interfaz web y el flujo de aprobación **aún no están implementados**.
+* **Gestión de Usuarios:**
+    * Login (`login.jsp`, `LoginController.java`) y Logout (`logout.jsp`) funcionales usando `HttpSession`.
+    * Validación de credenciales contra la tabla `usuarios`.
+    * El atributo de sesión usado es `"usuario"`.
+    * *Nota:* Gestión CRUD de usuarios y hashing de contraseñas pendientes.
+* **Base de Datos:**
+    * Se utiliza SQLite (`InventarioFusionado.db`) gestionada por `DBManager.java`.
+    * El script `Inventario.sql` incluye tablas `inventarios`, `productos`, `usuarios`, `movimientos` y `productos_buffer`.
+    * Inicialización automática al arrancar la aplicación (`WebAppInitializer.java`, `DatabaseInitializer.java`).
+* **Interfaz:**
+    * Acceso vía navegador web. JSPs funcionales para Login/Logout/Inventario.
+    * Estilos aplicados con CSS personalizado (`style.css`) y Bootstrap CDN.
+    * Funcionalidad JS básica (`Main.js`).
+
+3. STACK TECNOLÓGICO
+---------------------
+* Lenguaje: Java (Compilado con JDK 24, compatible con JDK 17+)
+* Build Tool: Apache Maven
+* Backend:
+    * Jakarta EE
+        * Jakarta Servlet 6.0
+        * Jakarta Server Pages (JSP) 3.1
+* Base de Datos: SQLite (Embebida, vía `sqlite-jdbc`)
+* Servidor de Aplicaciones: Apache Tomcat 10.1.x
+* Frontend: HTML, CSS, JavaScript, Bootstrap (CDN)
+
+4. CONFIGURACIÓN DEL ENTORNO
+-----------------------------
+* Java: JDK 17 o superior (JAVA_HOME y Path).
+* Maven: Instalado o usar wrapper `mvnw.cmd`.
+* Base de Datos: No requiere instalación externa. Se crea/accede en `database/InventarioFusionado.db`.
+* Servidor: Apache Tomcat 10.1.x configurado.
+
+5. CÓMO EJECUTAR LA APLICACIÓN
+------------------------------
+1.  **Construir:** `mvnw.cmd clean package` (o desde el IDE). Genera `target/Inventario_Fusionado.war`.
+2.  **Desplegar:** Copiar `.war` a `tomcat/webapps/` (asegúrate de borrar versiones antiguas).
+3.  **Iniciar Tomcat:** Ejecutar `startup.bat` (o `startup.sh`).
+4.  **Acceder:** `http://localhost:8080/Inventario_Fusionado/`
+
+6. ESTRUCTURA DEL PROYECTO (v1.5)
+---------------------------------
+Inventario_Fusionado/
+├── pom.xml
+├── database/
+│   └── InventarioFusionado.db  (Generado)
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── Inventario_Fusionado/
+│   │   │       ├── controller/  (InventoryController.java, LoginController.java)
+│   │   │       ├── dao/         (InventoryDAO.java, ProductDAO.java, UsuarioDAO.java)
+│   │   │       ├── database/    (DBManager.java, DatabaseInitializer.java)
+│   │   │       ├── listener/    (WebAppInitializer.java)
+│   │   │       └── model/       (Inventory.java, Product.java, Usuario.java)
+│   │   ├── resources/
+│   │   │   └── sqlite/
+│   │   │       └── Inventario.sql (Actualizado)
+│   │   └── webapp/
+│   │       ├── WEB-INF/
+│   │       │   └── web.xml     (Mínimo)
+│   │       ├── css/
+│   │       │   └── style.css
+│   │       ├── js/
+│   │       │   └── Main.js
+│   │       ├── index.jsp
+│   │       ├── login.jsp
+│   │       ├── logout.jsp
+│   │       ├── list-inventarios.jsp
+│   │       ├── inventario-form.jsp
+│   │       └── visualizar-inventarios.jsp
+│   └── test/
+└── target/
+    └── Inventario_Fusionado.war
+
+
+7. PRÓXIMAS TAREAS (Fase 2)
+----------------------------
+1.  **Seguridad:** Implementar `AuthenticationFilter.java` para proteger rutas.
+2.  **Flujo Productos:**
+    * Implementar Modelos (`Movimiento.java`, `ProductoBuffer.java`).
+    * Implementar DAOs (`MovimientoDAO.java`, `ProductBufferDAO.java`).
+    * Adaptar `ProductDAO.java` para lógica de aprobación/rechazo.
+    * Crear `ProductController.java` para gestionar CRUD web vía buffer.
+    * Crear JSPs (`product-list.jsp`, `product-form.jsp`).
+3.  **Seguridad Avanzada:**
+    * Implementar Hashing de contraseñas (BCrypt) en `UsuarioDAO`.
+    * Definir y aplicar Roles/Permisos.
+4.  **App Escritorio:** Desarrollar aplicación JavaFX para administración (Aprobación, User Mgmt, Historial).
+5.  **Mejoras:**
+    * Refinar UI/UX.
+    * Añadir validaciones de entrada robustas.
+    * Implementar manejo de errores más detallado.
+    * Considerar Pruebas Unitarias.
+    * Completar ajuste `nombre_producto` en `InventoryController`/`inventario-form.jsp`.
