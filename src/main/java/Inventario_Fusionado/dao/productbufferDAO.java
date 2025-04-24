@@ -3,7 +3,6 @@ package Inventario_Fusionado.dao;
 import Inventario_Fusionado.database.DBManager;
 import Inventario_Fusionado.model.ProductoBuffer;
 // Necesitaremos BigDecimal y LocalDateTime si los usamos directamente
-import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ import java.util.List;
  * DAO para gestionar las operaciones CRUD y consultas
  * sobre la tabla 'productos_buffer' (cambios pendientes de productos).
  */
-public class ProductBufferDAO {
+public class productbufferDAO {
 
     /**
      * Obtiene una conexión a la base de datos.

@@ -1,193 +1,226 @@
+/*VOY A PASAR DE METER VERSIONES PORQUE ESTO ME TIENE HASTA LA POLLA*/
+
+/* ==========================================================================
+   1. RESET GLOBAL Y FONDO
+   Description: Estilos base para body incluyendo fuente, márgenes y fondo.
+   ======================================================================== */
 body {
     font-family: 'Georgia', serif;
-    /* background-color: #f7f0e8; */ /* Color anterior comentado/eliminado */
     margin: 0;
     padding: 0;
     color: #333;
 
-    /* --- Fondo añadido --- */
-    background-image: url('../images/image_226ba8.jpg'); /* Ruta relativa correcta desde css/ */
-    background-size: cover;         /* Cubrir todo el espacio */
-    background-repeat: no-repeat;   /* No repetir la imagen */
-    background-position: center center; /* Centrar la imagen */
-    background-attachment: fixed;   /* Fijar la imagen durante el scroll */
-    min-height: 100vh;              /* Asegurar altura mínima */
-    /* --- Fin fondo añadido --- */
+    /* Fondo fijo de diseño unificado */
+    background-image: url('../images/image_226ba8.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    min-height: 100vh;
 }
 
+/* ==========================================================================
+   2. CONTENEDOR PRINCIPAL
+   Description: Define ancho y espaciado de contenedores centrales (.container).
+   ======================================================================== */
+\.container {
+    /* Ancho dinámico relativo al viewport */
+    width: 50vw; /* Triple ancho */
+    max-width: 50vw; /* Triple máximo */
 
-.container {
-    max-width: 960px;
-    margin: 40px auto; /* Margen superior/inferior para separar del borde */
-    padding: 30px;
-    background-color: #fff; /* Mantenemos el fondo blanco opaco */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    /* Margen vertical y centrado horizontal */
+    margin: 120px auto; /* Triple margen */
+    /* Relleno interno */
+    padding: 90px; /* Triple padding */
+
+    /* Fondo blanco y contraste */
+    background-color: #fff;
+    /* Sombra suave */
+    box-shadow: 0 4px 12px rgb(255, 196, 0);
+    /* Borde ligero */
     border: 1px solid #ccc;
+    /* Bordes redondeados */
     border-radius: 8px;
+
+    /* Altura mínima del contenedor */
+    min-height: 240vh; /* Triple altura mínima */
 }
 
+/* ==========================================================================
+   3. ANIMACIONES
+   Description: Efecto fade-in para elementos con clase .fade-in.
+   ======================================================================== */
 .fade-in {
     opacity: 0;
     animation: fadeIn 1s ease-in forwards;
 }
-
 @keyframes fadeIn {
     to { opacity: 1; }
 }
 
+/* ==========================================================================
+   4. ESTILOS DE TABLAS GENERALES
+   Description: Configuración de tablas con la clase .styled-table.
+   ======================================================================== */
 .styled-table {
-    width: 100%;
+    width: auto; /*100% now auto*/
+    max-width: none; /* esto antes era campo y no existía*/
     border-collapse: collapse;
     margin: 20px 0;
     font-size: 1rem;
-}
+    white-space: nowrap; /*"para que la tabla crezca a su ancho natural y no se recorte." normal que esto fuera una carrera antes*/
 
-.styled-table th, .styled-table td {
+}
+.styled-table th,
+.styled-table td {
     border: 1px solid #ddd;
     padding: 12px;
     text-align: left;
 }
-
 .styled-table th {
-    background-color: #f2e6d9; /* Color cabecera tabla */
+    background-color: #f2e6d9;
+    color: #333;
 }
 
+/* ==========================================================================
+   5. BOTONES
+   Description: Estilos primarios y secundarios para .btn y .btn-secondary.
+   ======================================================================== */
 .btn {
-    background-color: #4a3f35; /* Color botón */
+    background-color: #4a3f35;
     color: #fff;
     padding: 0.5rem 1rem;
     text-decoration: none;
     border-radius: 4px;
     margin: 0 4px;
     display: inline-block;
-    border: none; /* Asegurar que no tenga borde por defecto */
-    cursor: pointer; /* Indicar que es clickeable */
+    border: none;
+    cursor: pointer;
     transition: background-color 0.3s;
 }
-
 .btn:hover {
-    background-color: #3b312a; /* Color botón hover */
+    background-color: #3b312a;
 }
-
-/* Botones secundarios (ej: Cancelar) */
 .btn-secondary {
-    background-color: #8c7d70; /* Un gris/marrón más suave */
+    background-color: #8c7d70;
     color: #fff;
 }
 .btn-secondary:hover {
     background-color: #73665a;
 }
 
-/* Ajustes específicos para botones en tarjetas (visualizar-inventarios.jsp) */
+/* ==========================================================================
+   6. FORMULARIOS
+   Description: Estilos para inputs y etiquetas en .form-group y .form-control.
+   ======================================================================== */
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+.form-control {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #333;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    box-sizing: border-box;
+}
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* ==========================================================================
+   7. TARJETAS (CARDS)
+   Description: Estilos para el componente .card usado en listados.
+   ======================================================================== */
+.card {
+    width: 70vw; /* Triple ancho */
+    max-width: none; /* Sin límite */
+
+    margin: 0 auto 60px auto; /* Triple margen inferior */
+    padding: 60px 75px; /* Triple padding */
+
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #e0e0e0;
+    position: relative;
+
+    /* Altura mínima del card */
+    min-height: 180vh; /* Triple altura mínima */
+
+    /* Para que la tabla crezca a su ancho natural */
+    white-space: nowrap;
+}
+.card h2 {
+    margin: 0 0 15px;
+    font-size: 1.5em;
+    color: #4a3f35;
+}
 .card .action-buttons .btn-sm {
     padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
+    font-size: 0.575rem;
     line-height: 1.5;
     border-radius: 0.2rem;
     margin-left: 5px;
 }
-.card .action-buttons .btn-warning { /* Asumiendo que usas btn-warning para editar */
-    background-color: #e6a84f; /* Un color tipo ocre/dorado */
+.card .action-buttons .btn-warning {
+    background-color: #af6100;
     color: #fff;
 }
 .card .action-buttons .btn-warning:hover {
     background-color: #d48f32;
 }
-.card .action-buttons .btn-danger { /* Asumiendo que usas btn-danger para eliminar */
-    background-color: #c84c4c; /* Un rojo no tan estridente */
+.card .action-buttons .btn-danger {
+    background-color: #c84c4c;
     color: #fff;
 }
 .card .action-buttons .btn-danger:hover {
     background-color: #a93a3a;
 }
 
-
+/* ==========================================================================
+   8. CONTENEDOR DE TABLA
+   Description: Scroll vertical limitado para tablas largas.
+   ======================================================================== */
 .table-container {
-    max-height: 500px; /* Permite scroll si la tabla es muy larga */
+    max-height: none; /* Triple altura de scroll */
     overflow-y: auto;
 }
 
-/* Añadido: Estilos para el formulario (inventario-form.jsp) */
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.form-control {
-    width: 100%;
-    padding: 8px 10px;
-    font-size: 1rem;
-    line-height: 1.5;
-    color: #495057;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-    box-sizing: border-box; /* Incluir padding y borde en el ancho total */
-}
-
-.form-control:focus {
-    color: #495057;
-    background-color: #fff;
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-}
-
-/* Añadido: Estilos para las tarjetas (visualizar-inventarios.jsp) */
-.card {
-    max-width: 600px;
-    margin: 0 auto 20px auto; /* Centrar tarjeta y añadir margen inferior */
-    background-color: #fff;
-    padding: 20px 25px; /* Un poco más de padding */
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    position: relative; /* Para posicionar botones de acción */
-    border: 1px solid #e0e0e0;
-}
-
-.card h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.4em;
-    color: #4a3f35; /* Coincidir con botones */
-}
-
-.card p {
-    margin-bottom: 8px;
-    font-size: 1.1em;
-    line-height: 1.6;
-}
-
-.card p strong {
-    display: inline-block;
-    min-width: 80px;
-    color: #555;
-}
-
-.card .action-buttons {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-}
-
-/* Contenedor para acciones a nivel de página (ej: Añadir Nuevo) */
+/* ==========================================================================
+   9. ACCIONES A NIVEL DE PÁGINA
+   Description: .page-actions para botones de agregar/eliminar.
+   ======================================================================== */
 .page-actions {
-    text-align: right;
-    margin: 0 auto 20px auto; /* Centrar y añadir margen inferior */
-    max-width: 600px; /* Alinear con las tarjetas */
-    padding-right: 0; /* Ajustar si es necesario */
+    text-align: center;
+    margin: 0 auto 20px auto;
+    max-width: 100px;
+    padding-right: 0;
 }
 
-/* Estilos para mensajes de error (puedes personalizarlos más) */
+/* ==========================================================================
+  10. MENSAJES DE ERROR
+   Description: Estilos para .error-message en formularios.
+   ======================================================================== */
 .error-message {
-    color: #721c24; /* Rojo oscuro */
-    background-color: #f8d7da; /* Rosa claro */
-    border: 1px solid #f5c6cb; /* Borde rojo claro */
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
     padding: 10px 15px;
     margin-bottom: 15px;
     border-radius: 4px;
     text-align: center;
 }
+
+/* ==========================================================================
+  11. FONDO GLOBAL
+   Description: Definido al inicio para mantener fondo homogéneo.
+   ======================================================================== */
+/* background-image: url('../images/image_226ba8.jpg'); */

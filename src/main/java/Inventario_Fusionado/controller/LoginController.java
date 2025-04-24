@@ -1,6 +1,6 @@
 package Inventario_Fusionado.controller;
 
-import Inventario_Fusionado.dao.UsuarioDAO;
+import Inventario_Fusionado.dao.usuarioDAO;
 import Inventario_Fusionado.model.Usuario;
 
 import jakarta.servlet.*;
@@ -11,11 +11,11 @@ import java.io.IOException;
 @WebServlet(name = "LoginController", urlPatterns = {"/login"})
 public class LoginController extends HttpServlet {
 
-    private UsuarioDAO usuarioDAO;
+    private usuarioDAO usuarioDAO;
 
     @Override
     public void init() {
-        usuarioDAO = new UsuarioDAO();
+        usuarioDAO = new usuarioDAO();
     }
 
     @Override
