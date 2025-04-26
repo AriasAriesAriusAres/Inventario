@@ -1,7 +1,7 @@
 <%--
   ===========================================================================
-  product-list.jsp v3.21
-  Función: Listar productos pendientes y enlace a edición
+  product-list.jsp v3.22
+  Función: Listar productos pendientes con edición y eliminación inline
   ===========================================================================
 --%>
 
@@ -18,13 +18,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Productos Pendientes - Inventario Fusionado v3.21</title>
+  <title>Productos Pendientes - Inventario Fusionado v3.22</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="<%= contextPath %>/css/style.css">
 </head>
 
 <%-- ==========================================================================
-     MACRO BLOQUE: PROPÓSITO (específico de listados de productos)
+     MACRO BLOQUE: PROPÓSITO (específico de listados de productos con acciones)
   ========================================================================== --%>
 <body>
 <jsp:include page="../../includes/header.jsp" />
@@ -42,7 +42,7 @@
         <thead class="table-dark">
         <tr>
           <th>ID</th><th>Nombre</th><th>Descripción</th><th>Precio</th>
-          <th>Stock</th><th>Inventario</th><th>Estado</th><th>Solicitado por</th><th>Fecha</th>
+          <th>Stock</th><th>Inventario</th><th>Estado</th><th>Solicitado por</th><th>Fecha</th><th>Acciones</th>
         </tr>
         </thead>
         <tbody>
@@ -61,18 +61,22 @@
           <td><%= p.getEstado() %></td>
           <td><%= p.getIdUsuarioSolicitud() %></td>
           <td><%= p.getTimestampSolicitudString() %></td>
+          <td>
+            <a href="<%= contextPath %>/producto?action=edit&id=<%= p.getIdBuffer() %>" class="btn btn-sm btn-primary me-1">Editar</a>
+            <a href="<%= contextPath %>/producto?action=delete&id=<%= p.getIdBuffer() %>" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar solicitud ID <%= p.getIdBuffer() %>?');">Eliminar</a>
+          </td>
         </tr>
         <%
           }
         } else {
         %>
-        <tr><td colspan="9" class="text-center text-muted">No hay productos pendientes.</td></tr>
+        <tr><td colspan="10" class="text-center text-muted">No hay productos pendientes.</td></tr>
         <% } %>
         </tbody>
       </table>
     </div>
 
-    <div class="text-center text-muted small mt-3">Versión 3.21</div>
+    <div class="text-center text-muted small mt-3">Versión 3.22</div>
   </div>
 </div>
 
@@ -81,3 +85,4 @@
 <script src="<%= contextPath %>/js/Main.js"></script>
 </body>
 </html>
+:q
