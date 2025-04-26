@@ -1,10 +1,15 @@
 Markdown
 
-# Inventario Fusionado (v1.6.0 - Analizado)
+# Inventario Fusionado (2.0 - Analizado)
 
 ## 1. Descripción General
 
-Inventario Fusionado es una aplicación web desarrollada con Jakarta EE (Servlets y JSP) para gestionar inventarios y productos asociados. Permite a los usuarios autenticados realizar operaciones CRUD (Crear, Leer, Actualizar, Borrar) sobre las entidades principales (Inventarios, Productos, Usuarios) y visualizar un historial de movimientos (auditoría) de las acciones realizadas en el sistema. El proyecto utiliza una base de datos SQLite embebida para el almacenamiento de datos.
+Inventario Fusionado es una aplicación web desarrollada con Jakarta EE (Servlets y JSP) para gestionar inventarios y productos asociados.
+Permite a los usuarios autenticados realizar operaciones CRUD (Crear, Leer, Actualizar, Borrar)
+sobre las entidades principales (Inventarios, Productos, Usuarios)
+y visualizar un historial de movimientos (auditoría) de las acciones realizadas en el sistema.
+
+El proyecto utiliza una base de datos SQLite embebida para el almacenamiento de datos.
 
 ## 2. Tecnologías Utilizadas
 
