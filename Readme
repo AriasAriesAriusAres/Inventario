@@ -1,6 +1,8 @@
 Markdown
-
+===================================================================================================================================================================================================================
 # Inventario Fusionado (2.0 - Analizado)
+===================================================================================================================================================================================================================
+
 
 ## 1. Descripción General
 
@@ -10,6 +12,45 @@ sobre las entidades principales (Productos, Usuarios)
 y visualizar un historial de movimientos (auditoría) de las acciones realizadas en el sistema.
 
 El proyecto utiliza una base de datos SQLite embebida para el almacenamiento de datos.
+
+Resumen: Evolución y Estado Actual del Proyecto "Inventario Fusionado" (~v1.6.0)
+
+**1. Visión Original (Stock_Manager v1.0.x):**
+* Plataforma: Aplicación de Consola Java.
+* Base de Datos: MySQL.
+* Objetivo: Gestión básica (CRUD simple, visualización) de usuarios/artículos/movimientos para trabajo DAM.
+* Problemas: Seguridad básica (permisos) identificada en v1.0.1.
+
+**2. Transición y Planificación Intermedia (Inventario_Fusionado v1.0-v1.5):**
+* **Cambio Radical (v1.0):** Se migra a Aplicación Web (Servlets/JSP) con Base de Datos SQLite embebida, fusionando ideas. Foco inicial en CRUD de Inventarios.
+* **Avances (v1.5):** Se añade Login/Logout básico (HttpSession). Se estabiliza CRUD Inventarios. Se planifica un flujo de **Buffer/Aprobación** para Productos. Se planifica añadir Filtro de Autenticación, Hashing, Roles, UI Productos/Usuarios, Movimientos y App JavaFX.
+
+**3. Estado Actual (~v1.6.0) vs Aspiraciones:**
+
+* **Aspiraciones Cumplidas:**
+    * Gestión CRUD básica de Inventarios, Productos y Usuarios implementada en backend.
+    * Interfaz Web (Servlet/JSP) funcional con Tomcat y SQLite.
+    * Login/Logout y protección básica de rutas (AuthenticationFilter) implementados.
+    * Registro y visualización de Movimientos implementados.
+    * Inicialización automática de la BD SQLite funcional.
+
+* **Aspiraciones Cambiadas / Descartadas:**
+    * Plataforma Consola/MySQL: Totalmente descartada.
+    * **Flujo de Buffer de Productos:** ¡El cambio más importante! El flujo planificado en v1.5 fue **descartado** en favor de un CRUD directo de Productos, que es lo que está implementado ahora.
+    * Salida JSON/Ejecutable (idea inicial): Descartada con el paso a Web.
+
+* **Aspiraciones Pendientes / Áreas Clave de Mejora:**
+    * **Seguridad:** Hashing de contraseñas y Roles/Permisos detallados (CRÍTICO).
+    * **Refactorización JSP:** Eliminar scriptlets y usar JSTL/EL.
+    * **UI/UX:** Pulir interfaces (especialmente Usuarios), resolver conflictos CSS, mejorar edición inline o cambiarla.
+    * **Robustez:** Mejorar validación de entradas y manejo de errores.
+    * **App Escritorio:** Desarrollo de la app JavaFX sigue pendiente.
+    * **Pruebas:** Implementar pruebas unitarias/integración.
+    * **Calidad Código:** Estandarizar nombres (DAOs), añadir Javadoc.
+
+**En Conclusión:** El proyecto evolucionó de una app de consola/MySQL a una web/SQLite.
+Cumple las funciones CRUD básicas y de autenticación, pero **descartó el flujo de buffer de productos** planificado previamente.
+Las áreas más importantes para el futuro son la **seguridad (hashing/roles)** y la **mejora/refactorización de la capa de vista (JSP)**.
 
 ## 2. Tecnologías Utilizadas
 
@@ -115,7 +156,16 @@ Inventario_Fusionado/
     * Copia el archivo `.war` generado en el paso anterior al directorio `webapps` de tu instalación de Apache Tomcat.
     * Tomcat detectará automáticamente el archivo `.war` y desplegará la aplicación.
 4.  **Iniciar Tomcat:**
-    * Si Tomcat no está corriendo, inícialo ejecutando `startup.bat` (Windows) o `startup.sh` (Linux/macOS) desde el directorio `bin` de Tomcat.
+    *Iniciar Tomcat:
+     • Abre una terminal o Explorador de archivos y navega hasta el directorio “bin” de tu Tomcat. Por ejemplo:
+     C:\Users\guill\OneDrive\Desktop\Inventario_Fusionado\Apache-tomcat\apache-tomcat-10.1.40-windows-x64\apache-tomcat-10.1.40\bin
+     • En Windows: haz doble clic en startup.bat o ejecútalo desde la línea de comandos:
+     > startup.bat
+     • En Linux/macOS: ejecuta en la terminal:
+     $ ./startup.sh
+     • Verifica en consola que no haya errores y que escuche en el puerto configurado (por defecto 8080).
+        Si recibes “Address already in use”, detén el proceso que ocupa ese puerto o cambia el valor de <Connector port="8080" .../> en conf/server.xml.
+
 5.  **Acceder a la Aplicación:**
     * Abre tu navegador web y ve a la URL donde Tomcat ha desplegado la aplicación. Generalmente será algo como:
         `http://localhost:8080/NombreDelArchivoWarSinExtension/`
@@ -349,3 +399,135 @@ Inventario_Fusionado/
                                                                                             └──────────────────────────┘
 
 ===================================================================================================================================================================================================================
+ MODELOS DE FLUJO Como moverse por el programa
+===================================================================================================================================================================================================================
+┌─────────────────────────┐
+│         INICIO          │
+│ (Acceso a la Web App)   │
+└───────────┬─────────────┘
+            │
+            V
+┌─────────────────────────┐      ┌───────────────────────────┐     ┌───────────────────────────┐
+│  [Usuario] Accede a URL │ ---> │ [Tomcat] Sirve Recurso    │ --> │ [PANTALLA: login.jsp]     │
+│ (ej. /Inventario_Fusionado/)   │ (Puede ser index->login)  │     │ *Muestra Formulario Login*│
+└─────────────────────────┘      └──────────────────┬────────┘     └──────────┬────────────────┘
+            ▲                                       │                         │
+            │                                       │                         │ *Introduce User/Pass*
+            │                                       │                         │ *Pulsa "Entrar"*
+            │ *(Login Falla)*                       │                         V
+            │                                       │      *POST /login*      ┌───────────────────────────┐
+            └───────────────────────────────────────┼-------------------------│ [LoginController]         │
+                                                    │                         └───────────┬───────────────┘
+                                                    │                                     │ *Valida credenciales*
+                                                    │                                     │ --[uses]--> [UsuarioDAO.validarUsuario()]
+                                                    │                                     │
+                                                    │   ┌───────────────────────────┐     │
+                                                    ├───< ¿Credenciales Válidas?     >────┤
+                                                    │   └───────────┬───────────────┘     │
+                                               *No* │               │ *Sí*                │
+                                                    │               │                     │
+                                                    │               │ *Crea HttpSession* │
+                                                    │               │ *session.setAttribute("usuario", {Usuario})*
+                                                    │               V                     V
+                                                    │  ┌───────────────────────────┐   ┌───────────────────────────┐
+                                                    │  │ [LoginController]         │   │ [LoginController]         │
+                                                    │  │ *setAttribute("error")*   │   │ *response.sendRedirect*   │
+                                                    │  │ *forward("login.jsp")*    │   │ --> ("index.jsp")         │
+                                                    │  └───────────────────────────┘   └───────────┬───────────────┘
+                                                    │                                              │
+                                                    └──────────────────────────────────────────────┘
+                                                                                                   │
+                                                                                                   V
+┌───────────────────────────┐     ┌───────────────────────────┐                          ┌───────────────────────────┐
+│ [PANTALLA: index.jsp]     │ <-- │ [Tomcat] Sirve index.jsp  │ <----------------------- │ [Usuario] Navega a        │
+│ *Muestra Bienvenida*      │     └─────────────┬─────────────┘                          │    /index.jsp             │
+│ *o Incluye Vista (si hay)*│                   │                                        └───────────────────────────┘
+│ *Muestra Menú (header.jsp)*│                  │
+└───────────┬─────────────┘                     │
+            │                                   │
+            │ *Usuario Clica "Sección Tablas"*  │
+            V                                   │
+┌───────────────────────────┐                   │   *GET /ruta?vista=indextablas*
+│ [FrontController]         │ <-----------------┘
+└───────────┬─────────────┘
+            │ *Forward("indextablas.jsp")*
+            V
+┌───────────────────────────┐      ┌───────────────────────────┐     ┌───────────────────────────┐
+│ [PANTALLA: indextablas.jsp]| --> │ [Usuario] Elige Tabla     │ --> │ [Usuario] Clica           │
+│ *Muestra opciones:*       │      │ (Ej: Productos)           │     │   "Ver Productos"         │
+│  - Ver Productos          │      └───────────────────────────┘     └───────────┬───────────────┘
+│  - Ver Usuarios           │                                                    │
+│  - ...                    │                                                    │ *GET /ruta?vista=productos*
+└───────────┬───────────────┘                                                    │
+            │                                                                    V
+            │                                                       ┌───────────────────────────┐
+            └────────────────────────────────────────────────-------│ [FrontController]         │
+                                                                    └───────────┬───────────────┘
+                                                                                │ *Llama a DAO (productDAO.getAll...) *
+                                                                                │ *setAttribute("productos", lista)*
+                                                                                │ *setAttribute("vista", "productos")*
+                                                                                │ *Forward("index.jsp")*
+                                                                                V
+                                     ┌─────────────────────────────────────────────────────────────────────────┐
+                                     │ [PANTALLA: index.jsp (incluyendo /Tablas/producto/product-list.jsp)]    │
+                                     │ *Muestra Tabla de Productos con forms inline + Formulario Nuevo abajo*  │
+                                     └────────────────────────────────────┬────────────────────────────────────┘
+                                                                          │
+                      +---------------------------------------------------+-------------------------------------------------+
+                      │ *(Opción 1: Editar)*                              │ *(Opción 2: Crear)*                             │ *(Opción 3: Borrar)*
+                      V                                                   V                                                 V
+┌───────────────────────────┐     ┌───────────────────────────┐      ┌───────────────────────────┐                   ┌─────────────────────────┐
+│ [Usuario] Modifica datos  │ --> │ [Usuario] Pulsa "Guardar" │      │ [Usuario] Rellena Form Nuevo│                 │ [Usuario] Pulsa "Borrar"│
+│ en la fila de la tabla    │     │ (en la fila editada)      │      │ Producto (colapsable)     │                   │ (con confirmación JS)   │
+└───────────────────────────┘     └───────────┬───────────────┘      └───────────┬───────────────┘                   └──────────┬──────────────┘
+                                              │                                  │                                              │
+                                              │ *POST /producto*                 │ *POST /producto*                             │ *POST /producto*
+                                              │ *action=edit*                    │ *action=insert*                              │ *action=delete*
+                                              │ *id=X, datos...*                 │ *datos...*                                   │ *id=X*
+                                              V                                  V                                              V
+                                    ┌────────────────────────────┐      ┌───────────────────────────┐                    ┌─────────────────────────┐
+                                    │ [ProductController]        │      │ [ProductController]       │                    │ [ProductController]     │
+                                    └───────────┬────────────────┘      └───────────┬───────────────┘                    └──────────┬──────────────┘
+                                                │ *Procesa Update* 					│ *Procesa Insert* 								│ *Procesa Delete*
+                                                │ --> [ProductDAO.update] 			│ --> [ProductDAO.add]   						│ --> [ProductDAO.delete]
+                                                │ --> [MovimDAO.add]      			│ --> [MovimDAO.add]     						│ --> [MovimDAO.add]
+                                                │                         			│                        						│
+                                                │ *Obtiene Lista Actualizada* 		│ *Obtiene Lista Actualizada* 					│ *Obtiene Lista Actualizada*
+                                                │ --> [ProductDAO.getAll] 			│ --> [ProductDAO.getAll] 						│ --> [ProductDAO.getAll]
+                                                │                         			│                         						│
+                                                │ *setAttribute(lista, msg)*		│ *setAttribute(lista, msg)*					│ *setAttribute(lista, msg)*
+                                                │                         			│                         						│
+                                                │ *Forward* 						│ *Forward* 									│ *Forward*
+                                                V                       		    V                         						V
+                                    ┌───────────────────────────┐<------------------+-----------------------------------------------+
+                                    │ vuelve a PANTALLA:        │
+                                    │ product-list.jsp (refresh)│
+                                    └───────────────────────────┘
+
+···········································································································································
+ Flujo Alternativo: Editar Inventario (Formulario Dedicado)
+···········································································································································
+
+ (Desde una pantalla de listado como [list-inventarios.jsp] o [visualizar-inventarios.jsp])
+
+ ┌───────────────────────────┐     *GET /inventario?action=edit&id=X*      ┌─────────────────────────────────┐
+ │ [Usuario] Clica "Editar"  │ ------------------------------------------> │ [InventoryController]           │
+ │ (en un item específico)   │                                             └─────────────────┬───────────────┘
+ └───────────────────────────┘                                                             │ *Verifica si ID existe (getById)*
+                                                                                           │ *response.sendRedirect*
+                                                                                           │ --> ("/Tablas/Inventario/inventario-form.jsp?id=X")
+                                                                                           V
+ ┌─────────────────────────────────┐     ┌─────────────────────────────────┐      ┌───────────────────────────────┐
+ │ [PANTALLA: inventario-form.jsp] │ <-- │ [Tomcat] Sirve JSP              │ <----│ [Usuario] Navega a la URL     │
+ │ *Muestra Formulario con datos*  │     └─────────────────────────────────┘      └───────────────────────────────┘
+ │ *(JSP necesita lógica para      │
+ │  cargar datos por ID si aplica)*│
+ └─────────────────┬───────────────┘
+                   │ *Usuario Modifica Datos*
+                   │ *Pulsa "Actualizar"*
+                   V
+      *POST /inventario (action=update, id=X, datos...)*
+                   │
+ ┌─────────────────┴───────────────┐      *Procesa Update*            ┌─────────────────────────────────┐      *Redirecciona*
+ │ [InventoryController]           │ -------------------------------> │ [InventoryDAO.updateInventory()]│ -------------------> Vuelve al Listado
+ └─────────────────────────────────┘                                  └─────────────────────────────────┘                      (ej. /ruta?vista=inventarios)
