@@ -1,88 +1,106 @@
-<%--
-  ===========================================================================
-  product-list.jsp v3.22
-  Función: Listar productos pendientes con edición y eliminación inline
-  ===========================================================================
---%>
-
-<%-- ==========================================================================
-     MACRO BLOQUE: PLANTILLA (genérico y reutilizable)
-  ========================================================================== --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.List, Inventario_Fusionado.model.ProductoBuffer" %>
+<%@ page import="java.util.List, java.util.ArrayList, Inventario_Fusionado.model.Product" %>
 <%
+  // obtener o inicializar la lista
+  List<Product> productos = (List<Product>) request.getAttribute("productos");
+  if (productos == null) {
+    productos = new ArrayList<>();
+  }
+  boolean vacio = productos.isEmpty();
   String contextPath = request.getContextPath();
+  // flash message
+  String message = (String) request.getAttribute("message");
 %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Productos Pendientes - Inventario Fusionado v3.22</title>
+  <title>Listado de Productos</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="<%= contextPath %>/css/style.css">
 </head>
-
-<%-- ==========================================================================
-     MACRO BLOQUE: PROPÓSITO (específico de listados de productos con acciones)
-  ========================================================================== --%>
 <body>
-<jsp:include page="../../includes/header.jsp" />
 
-<div class="container mt-5 fade-in">
-  <div class="card d-flex flex-column align-items-center text-center">
+<jsp:include page="/includes/header.jsp" />
 
-    <h2 class="mb-4">Productos Pendientes</h2>
-    <div class="d-flex justify-content-center mb-4">
-      <a href="<%= contextPath %>/producto?action=form" class="btn btn-success">Nueva Solicitud</a>
-    </div>
+<div class="container mt-4">
+  <% if (message != null) { %>
+  <div class="alert alert-success" role="alert">
+    <%= message %>
+  </div>
+  <% } %>
 
-    <div class="table-container w-100 d-flex justify-content-center">
-      <table class="styled-table">
-        <thead class="table-dark">
-        <tr>
-          <th>ID</th><th>Nombre</th><th>Descripción</th><th>Precio</th>
-          <th>Stock</th><th>Inventario</th><th>Estado</th><th>Solicitado por</th><th>Fecha</th><th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        <%
-          List<ProductoBuffer> pendientes = (List<ProductoBuffer>) request.getAttribute("pendientes");
-          if (pendientes != null && !pendientes.isEmpty()) {
-            for (ProductoBuffer p : pendientes) {
-        %>
-        <tr>
-          <td><%= p.getIdBuffer() %></td>
-          <td><%= p.getNombre() %></td>
-          <td><%= p.getDescripcion() %></td>
-          <td><%= p.getPrecio() %></td>
-          <td><%= p.getStock() %></td>
-          <td><%= p.getIdInventario() %></td>
-          <td><%= p.getEstado() %></td>
-          <td><%= p.getIdUsuarioSolicitud() %></td>
-          <td><%= p.getTimestampSolicitudString() %></td>
-          <td>
-            <a href="<%= contextPath %>/producto?action=edit&id=<%= p.getIdBuffer() %>" class="btn btn-sm btn-primary me-1">Editar</a>
-            <a href="<%= contextPath %>/producto?action=delete&id=<%= p.getIdBuffer() %>" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar solicitud ID <%= p.getIdBuffer() %>?');">Eliminar</a>
-          </td>
-        </tr>
-        <%
-          }
-        } else {
-        %>
-        <tr><td colspan="10" class="text-center text-muted">No hay productos pendientes.</td></tr>
-        <% } %>
-        </tbody>
-      </table>
-    </div>
+  <div class="table-container">
+    <table class="styled-table table table-striped">
+      <thead>
+      <tr>
+        <th>ID</th><th>Nombre</th><th>Descripción</th><th>Precio</th><th>Stock</th><th>Inventario</th><th>Acciones</th>
+      </tr>
+      </thead>
+      <tbody>
+      <%
+        if (!vacio) {
+          for (Product p : productos) {
+      %>
+      <tr>
+        <td><%= p.getIdProducto() %></td>
+        <td><input class="form-control" name="nombre" value="<%= p.getNombre() %>" form="editForm_<%=p.getIdProducto()%>"/></td>
+        <td><input class="form-control" name="descripcion" value="<%= p.getDescripcion() %>" form="editForm_<%=p.getIdProducto()%>"/></td>
+        <td><input class="form-control" name="precio" value="<%= p.getPrecio() %>" form="editForm_<%=p.getIdProducto()%>"/></td>
+        <td><input class="form-control" name="stock" value="<%= p.getStock() %>" form="editForm_<%=p.getIdProducto()%>"/></td>
+        <td><input class="form-control" name="id_inventario" value="<%= p.getIdInventario() %>" form="editForm_<%=p.getIdProducto()%>"/></td>
+        <td>
+          <form id="editForm_<%=p.getIdProducto()%>" action="<%=contextPath%>/producto" method="post" style="display:inline;">
+            <input type="hidden" name="action" value="edit" />
+            <input type="hidden" name="id" value="<%= p.getIdProducto() %>" />
+            <button class="btn btn-sm btn-primary">Guardar</button>
+          </form>
+          <form action="<%=contextPath%>/producto" method="post" style="display:inline;" onsubmit="return confirm('¿Eliminar producto ID <%=p.getIdProducto()%>?');">
+            <input type="hidden" name="action" value="delete" />
+            <input type="hidden" name="id" value="<%= p.getIdProducto() %>" />
+            <button class="btn btn-sm btn-danger">Borrar</button>
+          </form>
+        </td>
+      </tr>
+      <%    }
+      } else {
+        // tres filas dummy con valores negativos
+        for (int i = 1; i <= 3; i++) {
+      %>
+      <tr class="text-muted">
+        <td>-<%=i%></td>
+        <td>-Sin datos-</td>
+        <td>-Sin datos-</td>
+        <td>-0.00-</td>
+        <td>-0-</td>
+        <td>-0-</td>
+        <td></td>
+      </tr>
+      <%  }
+      }
+      %>
+      </tbody>
+    </table>
+  </div>
 
-    <div class="text-center text-muted small mt-3">Versión 3.22</div>
+  <div class="page-actions">
+    <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#newProductForm">Nuevo Producto</button>
+  </div>
+  <div class="collapse" id="newProductForm">
+    <form action="<%=contextPath%>/producto" method="post" class="row g-3">
+      <input type="hidden" name="action" value="insert" />
+      <div class="col-md-2"><input name="nombre" class="form-control" placeholder="Nombre" required/></div>
+      <div class="col-md-3"><input name="descripcion" class="form-control" placeholder="Descripción"/></div>
+      <div class="col-md-1"><input name="precio" type="number" step="0.01" class="form-control" placeholder="Precio" required/></div>
+      <div class="col-md-1"><input name="stock" type="number" class="form-control" placeholder="Stock" required/></div>
+      <div class="col-md-2"><input name="id_inventario" type="number" class="form-control" placeholder="ID Inventario" required/></div>
+      <div class="col-md-1"><button class="btn btn-primary">Crear</button></div>
+    </form>
   </div>
 </div>
 
-<jsp:include page="../../includes/footer.jsp" />
+<jsp:include page="/includes/footer.jsp" />
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<%= contextPath %>/js/Main.js"></script>
 </body>
 </html>
-:q

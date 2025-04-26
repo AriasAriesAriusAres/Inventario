@@ -1,86 +1,147 @@
-<%--
-  ===========================================================================
-  product-list.jsp v3.19
-  Función: Listar productos pendientes y enlace a edición
-  ===========================================================================
---%>
-
-<%-- ==========================================================================
-     MACRO BLOQUE: PLANTILLA (genérico y reutilizable)
-  ==========================================================================
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.List, Inventario_Fusionado.model.ProductoBuffer" %>
+<%@ page import="java.util.List, java.util.ArrayList, Inventario_Fusionado.model.Usuario" %>
 <%
+  // Obtener o inicializar la lista de usuarios
+  List<Usuario> usuarios = (List<Usuario>) request.getAttribute("usuarios");
+  if (usuarios == null) {
+    usuarios = new ArrayList<>();
+  }
+  boolean vacio = usuarios.isEmpty();
   String contextPath = request.getContextPath();
+  // flash message
+  String message = (String) request.getAttribute("message");
 %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Productos Pendientes - Inventario Fusionado v3.19</title>
+  <title>Gestión de Usuarios</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="<%= contextPath %>/css/style.css">
-  <!-- Eliminado bloque de estilos inline: todo el CSS ahora vive en style.css -->
 </head>
-
-<%-- ==========================================================================
-     MACRO BLOQUE: PROPÓSITO (específico de listados de productos)
-  ==========================================================================
---%>
 <body>
-<jsp:include page="../../includes/header.jsp" />
+<jsp:include page="/includes/header.jsp" />
 
 <div class="container mt-5 fade-in">
-  <div class="card">  <!-- Usamos el estilo .card de style.css, igual que en usuarios -->
+  <% if (message != null) { %>
+  <div class="alert alert-success" role="alert">
+    <%= message %>
+  </div>
+  <% } %>
 
-    <h2 class="mb-2 text-start">Productos Pendientes</h2>
-    <div class="d-flex justify-content-start mb-3">
-      <a href="<%= contextPath %>/producto?action=form" class="btn btn-success">Nueva Solicitud</a>
-    </div>
+  <h2 class="mb-4">Gestión de Usuarios</h2>
+  <div class="mb-3">
+    <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#newUserForm">
+      Nuevo Usuario
+    </button>
+  </div>
 
-    <div class="table-container">  <!-- Contenedor genérico de tabla de style.css -->
-      <table class="styled-table">  <!-- Usamos .styled-table de style.css para tablas genéricas -->
-        <thead class="table-dark">
-        <tr>
-          <th>ID</th><th>Nombre</th><th>Descripción</th><th>Precio</th>
-          <th>Stock</th><th>Inventario</th><th>Estado</th><th>Solicitado por</th><th>Fecha</th>
-        </tr>
-        </thead>
-        <tbody>
-        <%
-          List<ProductoBuffer> pendientes = (List<ProductoBuffer>) request.getAttribute("pendientes");
-          if (pendientes != null && !pendientes.isEmpty()) {
-            for (ProductoBuffer p : pendientes) {
-        %>
-        <tr>
-          <td><%= p.getIdBuffer() %></td>
-          <td><%= p.getNombre() %></td>
-          <td><%= p.getDescripcion() %></td>
-          <td><%= p.getPrecio() %></td>
-          <td><%= p.getStock() %></td>
-          <td><%= p.getIdInventario() %></td>
-          <td><%= p.getEstado() %></td>
-          <td><%= p.getIdUsuarioSolicitud() %></td>
-          <td><%= p.getTimestampSolicitudString() %></td>
-        </tr>
-        <%
-          }
-        } else {
-        %>
-        <tr><td colspan="9" class="text-center text-muted">No hay productos pendientes.</td></tr>
-        <% } %>
-        </tbody>
-      </table>
-    </div>
+  <div class="collapse mb-4" id="newUserForm">
+    <form action="<%=contextPath%>/usuario" method="post" class="row g-3">
+      <input type="hidden" name="action" value="insert" />
+      <div class="col-md-4"><input name="username" class="form-control" placeholder="Nombre de usuario" required/></div>
+      <div class="col-md-4"><input name="password" type="password" class="form-control" placeholder="Contraseña" required/></div>
+      <div class="col-md-2"><button class="btn btn-primary">Crear</button></div>
+    </form>
+  </div>
 
-    <div class="text-end text-muted small mt-3">Versión 3.20</div>
+  <div class="table-container">
+    <table class="styled-table table table-striped">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Usuario</th>
+        <th>Acciones</th>
+      </tr>
+      </thead>
+      <tbody>
+      <%
+        if (!vacio) {
+          for (Usuario u : usuarios) {
+      %>
+      <tr>
+        <td><%= u.getIdUsuario() %></td>
+        <form id="editForm_<%=u.getIdUsuario()%>" action="<%=contextPath%>/usuario" method="post">
+          <input type="hidden" name="action" value="edit" />
+          <input type="hidden" name="id" value="<%= u.getIdUsuario() %>" />
+          <td><input class="form-control" name="username" value="<%= u.getUsername() %>" form="editForm_<%=u.getIdUsuario()%>"/></td>
+          <td>
+            <button class="btn btn-sm btn-primary">Guardar</button>
+            <button type="button" class="btn btn-sm btn-danger"
+                    onclick="if(confirm('¿Eliminar usuario <%=u.getUsername()%>?')) { document.getElementById('del_<%=u.getIdUsuario()%>').submit(); }">
+              Borrar
+            </button>
+        </form>
+        <form id="del_<%=u.getIdUsuario()%>" action="<%=contextPath%>/usuario" method="post">
+          <input type="hidden" name="action" value="delete" />
+          <input type="hidden" name="id" value="<%= u.getIdUsuario() %>" />
+        </form>
+        </td>
+      </tr>
+      <%    }
+      } else {
+        // tres filas dummy
+        for(int i=1;i<=3;i++) {
+      %>
+      <tr class="text-muted">
+        <td>-<%=i%></td><td>-Sin usuarios-</td><td></td>
+      </tr>
+      <%  }
+      }
+      %>
+      </tbody>
+    </table>
   </div>
 </div>
 
-<jsp:include page="../../includes/footer.jsp" />
+<jsp:include page="/includes/footer.jsp" />
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<%= contextPath %>/js/Main.js"></script>
 </body>
 </html>
+
+
+<%--
+  Problema: Esta página estaba cargando dos cabeceras superpuestas (el header global de style.css y el header local de la vista).
+  Solución: eliminamos la inclusión del estilo global aquí para que solo aparezca el header específico de “Gestión de Usuarios”.
+
+  Tampoco funciona, el puñetero header de style.css no se puede eliminar especificamente y cuando defino defines dos “flags” (atributos en la petición) que controlan cada header:
+
+showGlobalHeader → cuando es true, se renderiza el header global (el de header.jsp).
+
+showLocalHeader → cuando es true, se renderiza el header específico de list-usuarios.jsp.
+
+Y en cada JSP envuelves su header en un <c:if> que comprueba su flag. Así, si uno está activo, el otro puede permanecer oculto. Por ejemplo:
+
+jsp
+Copiar
+Editar
+<!-- header.jsp -->
+<c:if test="${showGlobalHeader}">
+  <!-- tu navbar global -->
+</c:if>
+jsp
+Copiar
+Editar
+<!-- list-usuarios.jsp -->
+<c:if test="${showLocalHeader}">
+  <!-- tu barra verde local -->
+</c:if>
+Y en el controlador, antes de hacer forward:
+
+java
+Copiar
+Editar
+// Para la vista inicial (index.jsp)
+request.setAttribute("showGlobalHeader", true);
+request.setAttribute("showLocalHeader", false);
+
+// Para list-usuarios.jsp tras /usuario
+request.setAttribute("showGlobalHeader", false);
+request.setAttribute("showLocalHeader", true);
+
+De este modo “se comunican”: nunca verás los dos a la vez, pero siempre habrá uno visible según el escenario
+pero funciona? y una polla que va a funcionar.
+
+dejo los dos y ya lo arreglare mas adelante.
+--%>

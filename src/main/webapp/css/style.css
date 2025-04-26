@@ -1,5 +1,3 @@
-/*VOY A PASAR DE METER VERSIONES PORQUE ESTO ME TIENE HASTA LA POLLA*/
-
 /* ==========================================================================
    1. RESET GLOBAL Y FONDO
    Description: Estilos base para body incluyendo fuente, márgenes y fondo.
@@ -9,8 +7,6 @@ body {
     margin: 0;
     padding: 0;
     color: #333;
-
-    /* Fondo fijo de diseño unificado */
     background-image: url('../images/image_226ba8.jpg');
     background-size: cover;
     background-repeat: no-repeat;
@@ -23,32 +19,20 @@ body {
    2. CONTENEDOR PRINCIPAL
    Description: Define ancho y espaciado de contenedores centrales (.container).
    ======================================================================== */
-\.container {
-    /* Ancho dinámico relativo al viewport */
-    width: 50vw; /* Triple ancho */
-    max-width: 50vw; /* Triple máximo */
-
-    /* Margen vertical y centrado horizontal */
-    margin: 120px auto; /* Triple margen */
-    /* Relleno interno */
-    padding: 90px; /* Triple padding */
-
-    /* Fondo blanco y contraste */
+.container {
+    width: 100vw;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 30px;
     background-color: #fff;
-    /* Sombra suave */
-    box-shadow: 0 4px 12px rgb(255, 196, 0);
-    /* Borde ligero */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     border: 1px solid #ccc;
-    /* Bordes redondeados */
     border-radius: 8px;
-
-    /* Altura mínima del contenedor */
-    min-height: 240vh; /* Triple altura mínima */
+    min-height: 100vh;
 }
 
 /* ==========================================================================
    3. ANIMACIONES
-   Description: Efecto fade-in para elementos con clase .fade-in.
    ======================================================================== */
 .fade-in {
     opacity: 0;
@@ -60,16 +44,13 @@ body {
 
 /* ==========================================================================
    4. ESTILOS DE TABLAS GENERALES
-   Description: Configuración de tablas con la clase .styled-table.
    ======================================================================== */
 .styled-table {
-    width: auto; /*100% now auto*/
-    max-width: none; /* esto antes era campo y no existía*/
+    width: 100%;
     border-collapse: collapse;
     margin: 20px 0;
     font-size: 1rem;
-    white-space: nowrap; /*"para que la tabla crezca a su ancho natural y no se recorte." normal que esto fuera una carrera antes*/
-
+    white-space: nowrap;
 }
 .styled-table th,
 .styled-table td {
@@ -84,7 +65,6 @@ body {
 
 /* ==========================================================================
    5. BOTONES
-   Description: Estilos primarios y secundarios para .btn y .btn-secondary.
    ======================================================================== */
 .btn {
     background-color: #4a3f35;
@@ -111,7 +91,6 @@ body {
 
 /* ==========================================================================
    6. FORMULARIOS
-   Description: Estilos para inputs y etiquetas en .form-group y .form-control.
    ======================================================================== */
 .form-group label {
     display: block;
@@ -137,35 +116,28 @@ body {
 
 /* ==========================================================================
    7. TARJETAS (CARDS)
-   Description: Estilos para el componente .card usado en listados.
    ======================================================================== */
 .card {
-    width: 70vw; /* Triple ancho */
-    max-width: none; /* Sin límite */
-
-    margin: 0 auto 60px auto; /* Triple margen inferior */
-    padding: 60px 75px; /* Triple padding */
-
+    width: auto;
+    max-width: none;
+    margin: 0 auto 20px auto;
+    padding: 20px 25px;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     border: 1px solid #e0e0e0;
     position: relative;
-
-    /* Altura mínima del card */
-    min-height: 180vh; /* Triple altura mínima */
-
-    /* Para que la tabla crezca a su ancho natural */
+    min-height: 60vh;
     white-space: nowrap;
 }
 .card h2 {
     margin: 0 0 15px;
-    font-size: 1.5em;
+    font-size: 1.4em;
     color: #4a3f35;
 }
 .card .action-buttons .btn-sm {
     padding: 0.25rem 0.5rem;
-    font-size: 0.575rem;
+    font-size: 0.875rem;
     line-height: 1.5;
     border-radius: 0.2rem;
     margin-left: 5px;
@@ -187,27 +159,24 @@ body {
 
 /* ==========================================================================
    8. CONTENEDOR DE TABLA
-   Description: Scroll vertical limitado para tablas largas.
    ======================================================================== */
 .table-container {
-    max-height: none; /* Triple altura de scroll */
+    max-height: 500px;
     overflow-y: auto;
 }
 
 /* ==========================================================================
    9. ACCIONES A NIVEL DE PÁGINA
-   Description: .page-actions para botones de agregar/eliminar.
    ======================================================================== */
 .page-actions {
-    text-align: center;
+    text-align: right;
     margin: 0 auto 20px auto;
-    max-width: 100px;
+    max-width: 600px;
     padding-right: 0;
 }
 
 /* ==========================================================================
-  10. MENSAJES DE ERROR
-   Description: Estilos para .error-message en formularios.
+   10. MENSAJES DE ERROR
    ======================================================================== */
 .error-message {
     color: #721c24;
@@ -220,7 +189,6 @@ body {
 }
 
 /* ==========================================================================
-  11. FONDO GLOBAL
-   Description: Definido al inicio para mantener fondo homogéneo.
+   11. FONDO GLOBAL
    ======================================================================== */
 /* background-image: url('../images/image_226ba8.jpg'); */

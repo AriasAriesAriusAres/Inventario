@@ -51,26 +51,7 @@ CREATE TABLE movimientos (
                              FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
 );
 
--- =============================================
--- Tabla de Productos Buffer (Cambios Pendientes)
--- =============================================
-DROP TABLE IF EXISTS productos_buffer;
-CREATE TABLE productos_buffer (
-                                  id_buffer INTEGER PRIMARY KEY AUTOINCREMENT,
-                                  nombre TEXT NOT NULL,
-                                  descripcion TEXT,
-                                  precio REAL NOT NULL DEFAULT 0.0,
-                                  stock INTEGER NOT NULL DEFAULT 0,
-                                  id_inventario INTEGER NOT NULL,
-                                  estado TEXT NOT NULL /* PENDIENTE_CREAR, PENDIENTE_MODIFICAR, PENDIENTE_BORRAR, APROBADO, RECHAZADO */,
-                                  id_usuario_solicitud INTEGER NOT NULL,
-                                  timestamp_solicitud TEXT NOT NULL /* Formato ISO: YYYY-MM-DDTHH:MM:SS */,
-                                  id_producto_original INTEGER NULL /* Guarda el ID del producto si es MODIF/BORRAR */,
-                                  mensaje_rechazo TEXT NULL /* Guarda el motivo si se rechaza */,
-                                  FOREIGN KEY (id_inventario) REFERENCES inventarios(id),
-                                  FOREIGN KEY (id_usuario_solicitud) REFERENCES usuarios(id_usuario)
-    /* FOREIGN KEY (id_producto_original) REFERENCES productos(id_producto) */
-);
+
 
 -- =============================================
 -- DATOS DE EJEMPLO
@@ -96,6 +77,3 @@ INSERT INTO usuarios (username, password) VALUES
 INSERT INTO movimientos (id_usuario, fecha_hora, tabla_afectada, id_registro_afectado, accion, estado, detalles_cambio)
 VALUES (1, '2024-01-01T12:00:00', 'productos', 1, 'INSERT', 'APROBADO', 'Carga inicial');
 
--- Producto pendiente dummy
-INSERT INTO productos_buffer (nombre, descripcion, precio, stock, id_inventario, estado, id_usuario_solicitud, timestamp_solicitud, id_producto_original, mensaje_rechazo)
-VALUES ('Producto Test', 'Producto en espera de aprobación', 9.99, 10, 1, 'PENDIENTE_CREAR', 1, '2024-01-01T13:00:00', NULL, NULL);

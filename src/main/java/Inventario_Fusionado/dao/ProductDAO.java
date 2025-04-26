@@ -2,13 +2,10 @@ package Inventario_Fusionado.dao;
 
 import Inventario_Fusionado.database.DBManager;
 import Inventario_Fusionado.model.Product;
-import Inventario_Fusionado.model.ProductoBuffer;
-import Inventario_Fusionado.model.Movimiento;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.time.LocalDateTime;
 
 public class ProductDAO {
 
@@ -155,29 +152,4 @@ public class ProductDAO {
         return product;
     }
 
-    public boolean approveChange(ProductoBuffer pb) {
-        String sql = "INSERT INTO productos (nombre, descripcion, precio, stock, id_inventario) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = DBManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            pstmt.setString(1, pb.getNombre());
-            pstmt.setString(2, pb.getDescripcion());
-            pstmt.setBigDecimal(3, pb.getPrecio());
-            pstmt.setInt(4, pb.getStock());
-            pstmt.setInt(5, pb.getIdInventario());
-
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
-
-        } catch (SQLException e) {
-            System.err.println("Error al aprobar solicitud de producto: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean rejectChange(int idProducto, String motivo) {
-        System.out.println("Solicitud de cambio rechazada para producto ID: " + idProducto + ". Motivo: " + motivo);
-        return true;
-    }
 }

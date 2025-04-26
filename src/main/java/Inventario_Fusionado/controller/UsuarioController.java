@@ -2,15 +2,21 @@ package Inventario_Fusionado.controller;
 
 import Inventario_Fusionado.dao.usuarioDAO;
 import Inventario_Fusionado.model.Usuario;
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
-import jakarta.servlet.annotation.*;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 @WebServlet(name = "UsuarioController", urlPatterns = {"/usuario"})
 public class UsuarioController extends HttpServlet {
+
+    public static final String ATTR_MESSAGE = "message";
 
     private usuarioDAO usuarioDAO;
 
@@ -27,19 +33,22 @@ public class UsuarioController extends HttpServlet {
         if (action == null) action = "list";
         switch(action) {
             case "new":
-                response.sendRedirect(request.getContextPath() + "/Tablas/usuario/form-usuario.jsp");
+                RequestDispatcher rdNew = request.getRequestDispatcher("/Tablas/usuario/form-usuario.jsp");
+                rdNew.forward(request, response);
                 break;
             case "edit": {
-                int idUsuario;
+                int id;
                 try {
-                    idUsuario = Integer.parseInt(request.getParameter("id"));
-                } catch(NumberFormatException | NullPointerException e) {
+                    id = Integer.parseInt(request.getParameter("id"));
+                } catch (Exception e) {
                     response.sendRedirect(request.getContextPath() + "/ruta?vista=usuario&error=id_invalido");
                     return;
                 }
-                Usuario existente = usuarioDAO.getUsuarioById(idUsuario);
-                if (existente != null) {
-                    response.sendRedirect(request.getContextPath() + "/Tablas/usuario/form-usuario.jsp?id=" + idUsuario);
+                Usuario user = usuarioDAO.getUsuarioById(id);
+                if (user != null) {
+                    request.setAttribute("usuarioEdit", user);
+                    RequestDispatcher rdEdit = request.getRequestDispatcher("/Tablas/usuario/form-usuario.jsp");
+                    rdEdit.forward(request, response);
                 } else {
                     response.sendRedirect(request.getContextPath() + "/ruta?vista=usuario&error=no_encontrado");
                 }
@@ -50,7 +59,16 @@ public class UsuarioController extends HttpServlet {
                 break;
             case "list":
             default:
-                response.sendRedirect(request.getContextPath() + "/ruta?vista=usuario");
+                List<Usuario> list = usuarioDAO.getAllUsuarios();
+                if (list == null || list.isEmpty()) {
+                    list = new ArrayList<>();
+                    list.add(new Usuario(-1, "-Sin usuarios-", ""));
+                    list.add(new Usuario(-2, "-Sin usuarios-", ""));
+                    list.add(new Usuario(-3, "-Sin usuarios-", ""));
+                }
+                request.setAttribute("usuarios", list);
+                RequestDispatcher rdList = request.getRequestDispatcher("/Tablas/usuario/list-usuarios.jsp");
+                rdList.forward(request, response);
                 break;
         }
     }
@@ -59,73 +77,71 @@ public class UsuarioController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String action = request.getParameter("action");
-        if (action == null) action = "list";
+        if (action == null) action = "insert";
+        String message = null;
         switch(action) {
             case "insert":
-                insertUsuario(request, response);
+                String username = request.getParameter("username");
+                String password = request.getParameter("password");
+                if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+                    message = "Usuario y contraseña son requeridos.";
+                } else {
+                    Usuario nuevo = new Usuario();
+                    nuevo.setUsername(username.trim());
+                    nuevo.setPassword(password.trim());
+                    boolean ok = usuarioDAO.registrarUsuario(nuevo);
+                    message = ok ? "Usuario creado correctamente." : "Error al crear usuario.";
+                }
                 break;
             case "update":
-                updateUsuario(request, response);
+                try {
+                    int id = Integer.parseInt(request.getParameter("id"));
+                    String user2 = request.getParameter("username");
+                    String pass2 = request.getParameter("password");
+                    if (user2 == null || user2.trim().isEmpty() || pass2 == null || pass2.trim().isEmpty()) {
+                        message = "Usuario y contraseña son requeridos.";
+                    } else {
+                        Usuario upd = new Usuario();
+                        upd.setIdUsuario(id);
+                        upd.setUsername(user2.trim());
+                        upd.setPassword(pass2.trim());
+                        boolean ok2 = usuarioDAO.updateUsuario(upd);
+                        message = ok2 ? "Usuario actualizado correctamente." : "Error al actualizar usuario.";
+                    }
+                } catch(Exception e) {
+                    message = "ID inválido.";
+                }
                 break;
             default:
-                response.sendRedirect(request.getContextPath() + "/ruta?vista=usuario");
                 break;
         }
-    }
-
-    private void insertUsuario(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        if (username == null || username.trim().isEmpty() ||
-                password == null || password.trim().isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/ruta?vista=usuario&error=campos_requeridos");
-            return;
+        // after CUD, show list
+        List<Usuario> list = usuarioDAO.getAllUsuarios();
+        if (list == null || list.isEmpty()) {
+            list = new ArrayList<>();
+            list.add(new Usuario(-1, "-Sin usuarios-", ""));
+            list.add(new Usuario(-2, "-Sin usuarios-", ""));
+            list.add(new Usuario(-3, "-Sin usuarios-", ""));
         }
-        Usuario nuevo = new Usuario();
-        nuevo.setUsername(username.trim());
-        nuevo.setPassword(password.trim());
-        boolean success = usuarioDAO.registrarUsuario(nuevo);
-        System.out.println("Registro Usuario exitoso: " + success);
-        response.sendRedirect(request.getContextPath() + "/ruta?vista=usuario");
-    }
-
-    private void updateUsuario(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        int idUsuario;
-        try {
-            idUsuario = Integer.parseInt(request.getParameter("id"));
-        } catch(NumberFormatException | NullPointerException e) {
-            response.sendRedirect(request.getContextPath() + "/ruta?vista=usuario&error=id_invalido");
-            return;
-        }
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        if (username == null || username.trim().isEmpty() ||
-                password == null || password.trim().isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/ruta?vista=usuario&error=campos_requeridos&id=" + idUsuario);
-            return;
-        }
-        Usuario actualizado = new Usuario();
-        actualizado.setIdUsuario(idUsuario);
-        actualizado.setUsername(username.trim());
-        actualizado.setPassword(password.trim());
-        boolean success = usuarioDAO.updateUsuario(actualizado);
-        System.out.println("Actualización Usuario ID " + idUsuario + ": " + success);
-        response.sendRedirect(request.getContextPath() + "/ruta?vista=usuario");
+        request.setAttribute("usuarios", list);
+        if (message != null) request.setAttribute(ATTR_MESSAGE, message);
+        RequestDispatcher rd = request.getRequestDispatcher("/Tablas/usuario/list-usuarios.jsp");
+        rd.forward(request, response);
     }
 
     private void deleteUsuario(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+            throws IOException, ServletException {
         int idUsuario;
         try {
             idUsuario = Integer.parseInt(request.getParameter("id"));
         } catch(NumberFormatException | NullPointerException e) {
-            response.sendRedirect(request.getContextPath() + "/ruta?vista=usuario&error=id_invalido");
+            request.setAttribute(ATTR_MESSAGE, "ID inválido para borrado.");
+            doGet(request, response);
             return;
         }
         boolean success = usuarioDAO.eliminarUsuario(idUsuario);
         System.out.println("Eliminación Usuario ID " + idUsuario + ": " + success);
-        response.sendRedirect(request.getContextPath() + "/ruta?vista=usuario");
+        request.setAttribute(ATTR_MESSAGE, success ? "Usuario eliminado correctamente." : "Error al eliminar usuario.");
+        doGet(request, response);
     }
 }
